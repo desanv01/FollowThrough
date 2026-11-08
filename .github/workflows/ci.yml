@@ -1,0 +1,91 @@
+name: Offline source CI
+
+"on":
+  push:
+    branches:
+      - main
+      - "codex/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline-source:
+    name: offline-source (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Check out source without stored credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned Rust toolchain
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.95.0 --profile minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Fetch locked Rust dependencies
+        shell: pwsh
+        run: |
+          cargo +1.95.0 fetch --locked --manifest-path runner/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Resolve Python executable for Rust tests
+        shell: pwsh
+        run: |
+          $python = (Get-Command python -CommandType Application -ErrorAction Stop).Source
+          if (-not $python) { throw "python executable was not resolved" }
+          Add-Content -Path $env:GITHUB_ENV -Value "FOLLOWTHROUGH_TEST_PYTHON=$python" -ErrorAction Stop
+
+      - name: Run Python test suite
+        shell: pwsh
+        run: |
+          python -B -m unittest discover -s tests -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run retry grader self-test
+        shell: pwsh
+        run: |
+          python -B grader/retry_processing.py --self-test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run preview-cache grader self-test
+        shell: pwsh
+        run: |
+          python -B grader/preview_cache.py --self-test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Test Rust runner with Python boundary
+        shell: pwsh
+        run: |
+          cargo +1.95.0 test --offline --locked --manifest-path runner/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build Rust runner
+        shell: pwsh
+        run: |
+          cargo +1.95.0 build --offline --locked --manifest-path runner/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -20,6 +20,35 @@ from scenarios import episode_config as config_mod  # noqa: E402
 from scenarios import prepare as prepare_mod  # noqa: E402
 
 
+def _create_directory_link(link, target):
+    """Create an owned directory symlink on POSIX or a junction on Windows."""
+    if os.name == "nt":
+        creation = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(link), str(target)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if creation.returncode == 0 and os.path.lexists(link):
+            return True, ""
+        return False, f"{creation.stdout} {creation.stderr}".strip()
+    try:
+        os.symlink(target, link, target_is_directory=True)
+    except (OSError, NotImplementedError) as exc:
+        return False, str(exc)
+    return True, ""
+
+
+def _remove_directory_link(link):
+    """Remove only the owned link itself, never its target contents."""
+    if not os.path.lexists(link):
+        return
+    if os.name == "nt" and not os.path.islink(link):
+        os.rmdir(link)
+    else:
+        os.unlink(link)
+
+
 SCENARIOS = ("R1", "R2", "R3", "C1", "C2", "C3")
 LIMITS = {
     "max_model_responses": 12,
@@ -369,13 +398,10 @@ class EpisodeConfigTests(unittest.TestCase):
         real = self.case_root / "real-parent"
         (real / "sub").mkdir(parents=True)
         link = self.case_root / "linked-parent"
-        creation = subprocess.run(
-            ["cmd", "/c", "mklink", "/J", str(link), str(real)],
-            capture_output=True, text=True, timeout=30,
-        )
-        if os.name != "nt" or creation.returncode != 0 or not link.exists():
-            self.skipTest(f"junction creation unavailable: {creation.stdout} {creation.stderr}")
-        self.addCleanup(lambda: os.rmdir(link) if link.exists() else None)
+        created, detail = _create_directory_link(link, real)
+        if not created:
+            self.skipTest(f"directory link creation unavailable: {detail}")
+        self.addCleanup(_remove_directory_link, link)
         calls = []
         original_lstat = config_mod._lstat
 

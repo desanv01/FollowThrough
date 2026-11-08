@@ -56,9 +56,16 @@ jobs:
       - name: Resolve Python executable for Rust tests
         shell: pwsh
         run: |
-          $python = (Get-Command python -CommandType Application -ErrorAction Stop).Source
-          if (-not $python) { throw "python executable was not resolved" }
-          Add-Content -Path $env:GITHUB_ENV -Value "FOLLOWTHROUGH_TEST_PYTHON=$python" -ErrorAction Stop
+          $python = @(python -c "import sys; print(sys.executable)")
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($python.Count -ne 1 -or [string]::IsNullOrWhiteSpace($python[0])) {
+            throw "python executable was not resolved to exactly one path"
+          }
+          $resolved = $python[0].Trim()
+          if (-not [System.IO.Path]::IsPathFullyQualified($resolved) -or -not (Test-Path -LiteralPath $resolved -PathType Leaf)) {
+            throw "python executable was not an existing absolute file"
+          }
+          Add-Content -Path $env:GITHUB_ENV -Value "FOLLOWTHROUGH_TEST_PYTHON=$resolved" -ErrorAction Stop
 
       - name: Run Python test suite
         shell: pwsh

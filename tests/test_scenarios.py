@@ -57,6 +57,35 @@ sys.path.insert(0, str(OVERLAY))
 from scenarios import prepare as prepare_mod  # noqa: E402
 
 
+def _create_directory_link(link, target):
+    """Create an owned directory symlink on POSIX or a junction on Windows."""
+    if os.name == "nt":
+        creation = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(link), str(target)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if creation.returncode == 0 and os.path.lexists(link):
+            return True, ""
+        return False, f"{creation.stdout} {creation.stderr}".strip()
+    try:
+        os.symlink(target, link, target_is_directory=True)
+    except (OSError, NotImplementedError) as exc:
+        return False, str(exc)
+    return True, ""
+
+
+def _remove_directory_link(link):
+    """Remove only the owned link itself, never its target contents."""
+    if not os.path.lexists(link):
+        return
+    if os.name == "nt" and not os.path.islink(link):
+        os.rmdir(link)
+    else:
+        os.unlink(link)
+
+
 SCENARIOS = ("R1", "R2", "R3", "C1", "C2", "C3")
 INPUTS = (
     "tasks/retry-processing/processor.py",
@@ -415,32 +444,21 @@ class ScenarioPreparationTests(unittest.TestCase):
         target = self.directory / "junction-target"
         target.mkdir()
         link = self.directory / "junction-link"
-        creation = subprocess.run(
-            ["cmd", "/c", "mklink", "/J", str(link), str(target)],
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-        if creation.returncode != 0 or not link.exists():
-            self.skipTest(f"junction creation unavailable: {creation.stdout} {creation.stderr}")
-        self.addCleanup(lambda: os.rmdir(link) if link.exists() else None)
+        created, detail = _create_directory_link(link, target)
+        if not created:
+            self.skipTest(f"directory link creation unavailable: {detail}")
+        self.addCleanup(_remove_directory_link, link)
         with self.assertRaises(prepare_mod.ScenarioError):
             prepare_mod.prepare_scenario(self.project, "R1", link / "package")
         project_link = self.directory / "project-junction"
-        second = subprocess.run(
-            ["cmd", "/c", "mklink", "/J", str(project_link), str(self.project)],
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-        if second.returncode == 0 and project_link.exists():
-            self.addCleanup(
-                lambda: os.rmdir(project_link) if project_link.exists() else None
+        created, detail = _create_directory_link(project_link, self.project)
+        if not created:
+            self.skipTest(f"directory link creation unavailable: {detail}")
+        self.addCleanup(_remove_directory_link, project_link)
+        with self.assertRaises(prepare_mod.ScenarioError):
+            prepare_mod.prepare_scenario(
+                project_link, "R1", self.outputs / "project-reparse"
             )
-            with self.assertRaises(prepare_mod.ScenarioError):
-                prepare_mod.prepare_scenario(
-                    project_link, "R1", self.outputs / "project-reparse"
-                )
 
     def test_failed_preparation_retains_reported_partial_state(self):
         output = self.outputs / "partial"
@@ -515,15 +533,10 @@ class ScenarioPreparationTests(unittest.TestCase):
         for name in ("__init__.py", "prepare.py", "catalog.json"):
             shutil.copyfile(OVERLAY / "scenarios" / name, package / name)
         link = package / "visible"
-        creation = subprocess.run(
-            ["cmd", "/c", "mklink", "/J", str(link), str(VISIBLE)],
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-        if creation.returncode != 0 or not link.exists():
-            self.skipTest(f"junction creation unavailable: {creation.stdout} {creation.stderr}")
-        self.addCleanup(lambda: os.rmdir(link) if link.exists() else None)
+        created, detail = _create_directory_link(link, VISIBLE)
+        if not created:
+            self.skipTest(f"directory link creation unavailable: {detail}")
+        self.addCleanup(_remove_directory_link, link)
         output = self.outputs / "redirected-asset"
         environment = os.environ.copy()
         environment["PYTHONPATH"] = str(package_parent)

@@ -1086,12 +1086,14 @@ class FileAndCliTests(ScratchTestCase):
         def flaky_rename(source, destination):
             calls["count"] += 1
             if calls["count"] == 1:
-                raise OSError(13, "Access denied", None, 5)  # WinError 5
+                error = PermissionError(13, "Access denied")
+                error.winerror = 5
+                raise error
             return real_rename(source, destination)
 
         with mock.patch.object(
             reporting_report.os, "rename", side_effect=flaky_rename
-        ):
+        ), mock.patch.object(reporting_report.os, "name", "nt"):
             generate(str(valid), str(final))
         self.assertEqual(calls["count"], 2)
         self.assertTrue((final / "report.json").is_file())

@@ -141,12 +141,6 @@ class SimulatedSession(ps.Session):
     def isolation_witness(self):
         return self.witness
 
-PROJECT = Path(os.environ.get("FOLLOWTHROUGH_PROJECT_ROOT",
-                              r"C:\Users\Dv\Desktop\FollowThrough"))
-NATIVE = PROJECT / ".coordination" / "runtime" / "group08-info" / \
-    "native-r3-1d9b733085af" / "receipt.json"
-
-
 @contextlib.contextmanager
 def temp_scratch():
     path = SCRATCH / ("scratch-" + uuid.uuid4().hex)
@@ -183,7 +177,12 @@ def request_for(candidate_sha):
 class CheckBridgeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.receipt = json.loads(NATIVE.read_text(encoding="utf-8"))
+        receipt_path = os.environ.get("FOLLOWTHROUGH_NATIVE_RECEIPT")
+        if not receipt_path:
+            raise unittest.SkipTest(
+                "Native R3 receipt qualification requires FOLLOWTHROUGH_NATIVE_RECEIPT "
+                "to name an actual native receipt; portable CI has no native evidence.")
+        cls.receipt = json.loads(Path(receipt_path).read_text(encoding="utf-8"))
 
     def test_native_r3_real_receipt_projects_passed(self):
         receipt = self.receipt

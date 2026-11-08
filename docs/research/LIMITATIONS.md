@@ -52,7 +52,7 @@ The adapter does not implement a cumulative campaign budget. Per-request reserva
 
 - Repository baseline is published on `main` at the pinned commit; GitHub is the source-delivery route. No CI workflow is configured. CI is planned as a later sequential P6 assignment, not part of this packet.
 - No Docker operation, deployment, desktop application or local GPU hosting is part of the current evidence path for the core CLI benchmark.
-- License selection is pending. No open-source licence grant is asserted, and no third-party code or assets were copied into the fixtures.
+- The project is licensed under AGPL-3.0-only (see `LICENSE` and `NOTICE`). Third-party code assets retain their own terms; no third-party code or assets were copied into the fixtures.
 - Private coordination, `.env` files, raw provider traces and unrelated material must stay out of any public package.
 - The deadline, ZIP size, root-README and ≤5-minute video limits in earlier planning are **historical and were not reverified** by this preparation pass. Eligibility, consent and field requirements are unverified. They must be rechecked against the official rules before any submission.
 

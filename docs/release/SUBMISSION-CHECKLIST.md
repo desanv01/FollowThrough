@@ -25,7 +25,7 @@
 | Sanitised traces and attempt dispositions | **Missing** | Must preserve all attempts if a campaign is later run |
 | Reproduction instructions | Drafted here; current commands in README/runner/adapter guides | Main verifies commands after qualification |
 | Demo video and transcript | **Missing** | Not recorded; ≤5-minute limit historical and to be rechecked |
-| Licence file | **Missing** | Selection pending; no grant asserted |
+| Licence file | **Present** | AGPL-3.0-only; see `LICENSE`/`NOTICE`; third-party terms retained |
 | CI workflow/evidence | **Missing** | Later sequential P6 assignment, out of this scope |
 | Submission description/fields | **Missing** | Depends on official form and eligibility; do not draft claims beyond evidence |
 
@@ -51,7 +51,7 @@ Before packaging, search the staged file list for secrets and confirm `.gitignor
 
 ## 5. Licence and attribution decisions
 
-- **Licence choice is pending.** No open-source licence is selected or asserted, and this document does not choose one. A licence decision is the user's/Main's, ideally after checking the official rules and third-party obligations.
+- **Licence choice is AGPL-3.0-only**, selected by the user and represented by `LICENSE`/`NOTICE`. Third-party components retain their own terms; confirm them before publication.
 - Preserve the contribution record: user direction and motivating experience; Main coordination/integration/acceptance/publication; Codex Sol Medium implementation and cache takeover; Sol High independent reviews; human-launched DeepSeek workers for cache, scenario, isolation-plan and budget candidates. Worker `COMPLETE` is not integration or acceptance.
 - Do not invent authors, professional experience, affiliations, endorsements, reviewer outcomes, commits or third-party grants.
 - Confirm no third-party code, data, images or music are bundled without a recorded permission/licence. The pinned contribution ledger states that no third-party assets/data were copied into task fixtures; the release baseline forbids adding any through documentation. If a video adds music/fonts/images, record their licences separately.
@@ -99,7 +99,7 @@ No upload, publication, form entry or submission occurs in this packet.
 | Decision/fact | Current state |
 |---|---|
 | Final commit/tag and archive name | Unknown; baseline `166a304` |
-| Licence selection | Pending |
+| Licence selection | AGPL-3.0-only (`LICENSE`/`NOTICE`) |
 | Eligibility and entrant details | Unknown; recheck rules |
 | Official deadline/limits | Historical; recheck |
 | Accepted results and traces | None |

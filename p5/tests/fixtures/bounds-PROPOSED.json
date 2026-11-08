@@ -1,0 +1,10 @@
+{
+  "calls_per_episode": 16,
+  "max_output_tokens": 2048,
+  "seconds_per_call": 25,
+  "reserve_micro_usd_per_call": 50000,
+  "max_reservation_micro_usd_per_episode": 800000,
+  "max_total_reservation_micro_usd": 28800000,
+  "wall_seconds_total": 14400,
+  "concurrency": 1
+}

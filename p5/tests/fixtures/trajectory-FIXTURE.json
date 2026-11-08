@@ -1,0 +1,9 @@
+{
+  "provenance": "FIXTURE_ONLY_NOT_VERIFIED_SNAPSHOTS",
+  "observations": [
+    {"cell_id": "R1.ordinary.r1", "trial": 1, "checkpoint_id": "new_delivery", "sequence": 1, "correct": true, "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    {"cell_id": "R1.ordinary.r1", "trial": 1, "checkpoint_id": "new_delivery", "sequence": 2, "correct": false, "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    {"cell_id": "R1.ordinary.r1", "trial": 1, "checkpoint_id": "new_delivery", "sequence": 3, "correct": true, "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    {"cell_id": "R1.ordinary.r1", "trial": 1, "checkpoint_id": "duplicate_replay", "sequence": 1, "correct": true, "input_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+  ]
+}

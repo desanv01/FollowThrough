@@ -1,0 +1,87 @@
+{
+  "schema_version": "p5-arm-comparison-0.1",
+  "evidence_notice": "Descriptive within-scenario comparison; no pooled or causal claim.",
+  "rows": [
+    {
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "present": true,
+      "eligible": 1,
+      "attempted": 2,
+      "strict_pass": 0,
+      "strict_fail": 1,
+      "strict_unknown": 0,
+      "success_fraction": {
+        "numerator": 0,
+        "denominator": 1
+      }
+    },
+    {
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "present": false,
+      "eligible": null,
+      "attempted": null,
+      "strict_pass": null,
+      "strict_fail": null,
+      "strict_unknown": null,
+      "success_fraction": null
+    },
+    {
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "present": true,
+      "eligible": 2,
+      "attempted": 2,
+      "strict_pass": 1,
+      "strict_fail": 1,
+      "strict_unknown": 0,
+      "success_fraction": {
+        "numerator": 1,
+        "denominator": 2
+      }
+    },
+    {
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "present": false,
+      "eligible": null,
+      "attempted": null,
+      "strict_pass": null,
+      "strict_fail": null,
+      "strict_unknown": null,
+      "success_fraction": null
+    },
+    {
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "present": true,
+      "eligible": 0,
+      "attempted": 1,
+      "strict_pass": 0,
+      "strict_fail": 0,
+      "strict_unknown": 0,
+      "success_fraction": {
+        "numerator": 0,
+        "denominator": 0
+      }
+    },
+    {
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "present": false,
+      "eligible": null,
+      "attempted": null,
+      "strict_pass": null,
+      "strict_fail": null,
+      "strict_unknown": null,
+      "success_fraction": null
+    }
+  ]
+}

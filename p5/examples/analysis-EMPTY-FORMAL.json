@@ -1,0 +1,25 @@
+{
+  "schema_version": "p5-analysis-0.1",
+  "dataset_id": "p5-formal-EMPTY-NO-DATA",
+  "evidence_notice": "Supplied independent judgments only. Synthetic/development rows are fixture data, not model results. No pooled headline, significance test or causal claim.",
+  "inventory": {
+    "attempted": 0,
+    "evidence_counts": {
+      "synthetic_development": 0,
+      "real_provider": 0
+    },
+    "stage_counts": {
+      "development": 0,
+      "pilot": 0,
+      "formal": 0
+    }
+  },
+  "groups": [],
+  "episodes": [],
+  "limitations": [
+    "Small authored study; scenario configurations are not independent domains.",
+    "Workflow/evidence/completion predicates depend on supplied independent judgments.",
+    "Unknown values are not failures and are never imputed as zero.",
+    "No statistical significance or model-ranking claim is supported."
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "schema_version": "p5-analysis-0.1",
+  "dataset_id": "p5-fixture-synthetic-development-001",
+  "evidence_notice": "Supplied independent judgments only. Synthetic/development rows are fixture data, not model results. No pooled headline, significance test or causal claim.",
+  "inventory": {
+    "attempted": 5,
+    "evidence_counts": {
+      "synthetic_development": 5,
+      "real_provider": 0
+    },
+    "stage_counts": {
+      "development": 5,
+      "pilot": 0,
+      "formal": 0
+    }
+  },
+  "groups": [
+    {
+      "attempted": 2,
+      "eligible": 1,
+      "excluded": 1,
+      "status_counts": {
+        "completed": 1,
+        "partial": 0,
+        "limit_reached": 0,
+        "provider_error": 1,
+        "infrastructure_error": 0,
+        "invalid": 0
+      },
+      "component_counts": {
+        "functional": {
+          "pass": 0,
+          "fail": 1,
+          "unknown": 0
+        },
+        "workflow": {
+          "pass": 1,
+          "fail": 0,
+          "unknown": 0
+        },
+        "evidence": {
+          "pass": 1,
+          "fail": 0,
+          "unknown": 0
+        },
+        "completion": {
+          "pass": 0,
+          "fail": 1,
+          "unknown": 0
+        }
+      },
+      "strict_counts": {
+        "pass": 0,
+        "fail": 1,
+        "unknown": 0
+      },
+      "success_fraction": {
+        "numerator": 0,
+        "denominator": 1
+      },
+      "resources": {
+        "model_responses": {
+          "known_sum": 2,
+          "known_count": 1,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "tool_actions": {
+          "known_sum": 2,
+          "known_count": 1,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "input_tokens": {
+          "known_sum": 90,
+          "known_count": 1,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "output_tokens": {
+          "known_sum": 40,
+          "known_count": 1,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "elapsed_ms": {
+          "known_sum": 900,
+          "known_count": 1,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "estimated_cost_micro_usd": {
+          "known_sum": 8,
+          "known_count": 1,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "reserved_micro_usd": {
+          "known_sum": 50,
+          "known_count": 2,
+          "unknown_count": 0,
+          "complete_total": 50
+        }
+      },
+      "evidence_kind": "synthetic_development",
+      "stage": "development",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "cell_id": "C1.ordinary.development"
+    },
+    {
+      "attempted": 2,
+      "eligible": 2,
+      "excluded": 0,
+      "status_counts": {
+        "completed": 1,
+        "partial": 1,
+        "limit_reached": 0,
+        "provider_error": 0,
+        "infrastructure_error": 0,
+        "invalid": 0
+      },
+      "component_counts": {
+        "functional": {
+          "pass": 2,
+          "fail": 0,
+          "unknown": 0
+        },
+        "workflow": {
+          "pass": 2,
+          "fail": 0,
+          "unknown": 0
+        },
+        "evidence": {
+          "pass": 1,
+          "fail": 0,
+          "unknown": 1
+        },
+        "completion": {
+          "pass": 2,
+          "fail": 0,
+          "unknown": 0
+        }
+      },
+      "strict_counts": {
+        "pass": 1,
+        "fail": 1,
+        "unknown": 0
+      },
+      "success_fraction": {
+        "numerator": 1,
+        "denominator": 2
+      },
+      "resources": {
+        "model_responses": {
+          "known_sum": 3,
+          "known_count": 2,
+          "unknown_count": 0,
+          "complete_total": 3
+        },
+        "tool_actions": {
+          "known_sum": 3,
+          "known_count": 1,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "input_tokens": {
+          "known_sum": 180,
+          "known_count": 2,
+          "unknown_count": 0,
+          "complete_total": 180
+        },
+        "output_tokens": {
+          "known_sum": 50,
+          "known_count": 1,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "elapsed_ms": {
+          "known_sum": 1000,
+          "known_count": 1,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "estimated_cost_micro_usd": {
+          "known_sum": 10,
+          "known_count": 1,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "reserved_micro_usd": {
+          "known_sum": 50,
+          "known_count": 2,
+          "unknown_count": 0,
+          "complete_total": 50
+        }
+      },
+      "evidence_kind": "synthetic_development",
+      "stage": "development",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "cell_id": "R1.ordinary.development"
+    },
+    {
+      "attempted": 1,
+      "eligible": 0,
+      "excluded": 1,
+      "status_counts": {
+        "completed": 0,
+        "partial": 0,
+        "limit_reached": 0,
+        "provider_error": 0,
+        "infrastructure_error": 1,
+        "invalid": 0
+      },
+      "component_counts": {
+        "functional": {
+          "pass": 0,
+          "fail": 0,
+          "unknown": 0
+        },
+        "workflow": {
+          "pass": 0,
+          "fail": 0,
+          "unknown": 0
+        },
+        "evidence": {
+          "pass": 0,
+          "fail": 0,
+          "unknown": 0
+        },
+        "completion": {
+          "pass": 0,
+          "fail": 0,
+          "unknown": 0
+        }
+      },
+      "strict_counts": {
+        "pass": 0,
+        "fail": 0,
+        "unknown": 0
+      },
+      "success_fraction": {
+        "numerator": 0,
+        "denominator": 0
+      },
+      "resources": {
+        "model_responses": {
+          "known_sum": 0,
+          "known_count": 0,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "tool_actions": {
+          "known_sum": 0,
+          "known_count": 0,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "input_tokens": {
+          "known_sum": 0,
+          "known_count": 0,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "output_tokens": {
+          "known_sum": 0,
+          "known_count": 0,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "elapsed_ms": {
+          "known_sum": 0,
+          "known_count": 0,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "estimated_cost_micro_usd": {
+          "known_sum": 0,
+          "known_count": 0,
+          "unknown_count": 1,
+          "complete_total": null
+        },
+        "reserved_micro_usd": {
+          "known_sum": 25,
+          "known_count": 1,
+          "unknown_count": 0,
+          "complete_total": 25
+        }
+      },
+      "evidence_kind": "synthetic_development",
+      "stage": "development",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "cell_id": "R2.ordinary.development"
+    }
+  ],
+  "episodes": [
+    {
+      "episode_id": "fixture-c1-01",
+      "scenario_id": "C1",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "provider_error",
+      "strict_outcome": "not_scored"
+    },
+    {
+      "episode_id": "fixture-c1-02",
+      "scenario_id": "C1",
+      "arm": "ordinary",
+      "trial": 2,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "completed",
+      "strict_outcome": "fail"
+    },
+    {
+      "episode_id": "fixture-r1-01",
+      "scenario_id": "R1",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "completed",
+      "strict_outcome": "pass"
+    },
+    {
+      "episode_id": "fixture-r1-02",
+      "scenario_id": "R1",
+      "arm": "ordinary",
+      "trial": 2,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "partial",
+      "strict_outcome": "fail"
+    },
+    {
+      "episode_id": "fixture-r2-01",
+      "scenario_id": "R2",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "infrastructure_error",
+      "strict_outcome": "not_scored"
+    }
+  ],
+  "limitations": [
+    "Small authored study; scenario configurations are not independent domains.",
+    "Workflow/evidence/completion predicates depend on supplied independent judgments.",
+    "Unknown values are not failures and are never imputed as zero.",
+    "No statistical significance or model-ranking claim is supported."
+  ]
+}

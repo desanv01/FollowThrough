@@ -1,0 +1,10 @@
+{
+  "schema_version": "p5-recomputation-0.1",
+  "dataset_id": "synthetic-report-contract-v0.1",
+  "groups_recomputed": 7,
+  "groups_recorded": 7,
+  "matches": true,
+  "group_differences": [],
+  "inventory_differences": [],
+  "evidence_notice": "Independent recomputation of supplied judgments; differences are findings, never silently reconciled. No formal result is asserted."
+}

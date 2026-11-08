@@ -1,0 +1,24 @@
+{
+  "schema_version": "p5-affordability-0.1",
+  "status": "FITS",
+  "pilot_input_label": "PROPOSED_PILOT_INPUT_NOT_OBSERVED",
+  "observed_inputs": false,
+  "design_count": 36,
+  "episodes_from_pilot": 12,
+  "effective_ceiling_micro_usd": 19000000,
+  "worst_case_reservation_micro_usd": 18000000,
+  "headroom_micro_usd": 1000000,
+  "computed": {
+    "episodes": 36,
+    "worst_case_runtime_seconds": 21600,
+    "projected_actual_cost_micro_usd": 3600000,
+    "worst_case_reservation_micro_usd": 18000000
+  },
+  "unknown_inputs": [],
+  "assumptions": [
+    "Pilot values are reviewed observations, not guesses; null means unknown.",
+    "Worst case reservation uses the reviewed per-episode reservation, not actual cost.",
+    "No billing guarantee, price forecast or remaining-balance inference is made.",
+    "Campaign size remains a proposal for P4 freeze."
+  ]
+}

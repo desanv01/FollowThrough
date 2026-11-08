@@ -1,0 +1,274 @@
+{
+  "schema_version": "p5-design-0.1",
+  "status": "PROPOSED_NOT_FROZEN",
+  "repetitions": 3,
+  "scenarios": [
+    "R1",
+    "R2",
+    "R3",
+    "C1",
+    "C2",
+    "C3"
+  ],
+  "arms": [
+    "ordinary",
+    "structured_progress"
+  ],
+  "rotation": 2,
+  "cells": [
+    {
+      "cell_id": "R1.structured_progress.r1",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 1
+    },
+    {
+      "cell_id": "R1.ordinary.r1",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 1
+    },
+    {
+      "cell_id": "R2.ordinary.r1",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 1
+    },
+    {
+      "cell_id": "R2.structured_progress.r1",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 1
+    },
+    {
+      "cell_id": "R3.structured_progress.r1",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 1
+    },
+    {
+      "cell_id": "R3.ordinary.r1",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 1
+    },
+    {
+      "cell_id": "C1.ordinary.r1",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 1
+    },
+    {
+      "cell_id": "C1.structured_progress.r1",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 1
+    },
+    {
+      "cell_id": "C2.structured_progress.r1",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 1
+    },
+    {
+      "cell_id": "C2.ordinary.r1",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 1
+    },
+    {
+      "cell_id": "C3.ordinary.r1",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 1
+    },
+    {
+      "cell_id": "C3.structured_progress.r1",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 1
+    },
+    {
+      "cell_id": "R3.ordinary.r2",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 2
+    },
+    {
+      "cell_id": "R3.structured_progress.r2",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 2
+    },
+    {
+      "cell_id": "C1.structured_progress.r2",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 2
+    },
+    {
+      "cell_id": "C1.ordinary.r2",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 2
+    },
+    {
+      "cell_id": "C2.ordinary.r2",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 2
+    },
+    {
+      "cell_id": "C2.structured_progress.r2",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 2
+    },
+    {
+      "cell_id": "C3.structured_progress.r2",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 2
+    },
+    {
+      "cell_id": "C3.ordinary.r2",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 2
+    },
+    {
+      "cell_id": "R1.ordinary.r2",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 2
+    },
+    {
+      "cell_id": "R1.structured_progress.r2",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 2
+    },
+    {
+      "cell_id": "R2.structured_progress.r2",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 2
+    },
+    {
+      "cell_id": "R2.ordinary.r2",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 2
+    },
+    {
+      "cell_id": "C2.structured_progress.r3",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 3
+    },
+    {
+      "cell_id": "C2.ordinary.r3",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 3
+    },
+    {
+      "cell_id": "C3.ordinary.r3",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 3
+    },
+    {
+      "cell_id": "C3.structured_progress.r3",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 3
+    },
+    {
+      "cell_id": "R1.structured_progress.r3",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 3
+    },
+    {
+      "cell_id": "R1.ordinary.r3",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 3
+    },
+    {
+      "cell_id": "R2.ordinary.r3",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 3
+    },
+    {
+      "cell_id": "R2.structured_progress.r3",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 3
+    },
+    {
+      "cell_id": "R3.structured_progress.r3",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 3
+    },
+    {
+      "cell_id": "R3.ordinary.r3",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 3
+    },
+    {
+      "cell_id": "C1.ordinary.r3",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 3
+    },
+    {
+      "cell_id": "C1.structured_progress.r3",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 3
+    }
+  ],
+  "count": 36,
+  "note": "Proposed interleaving only; P4 freeze sets final size/order/settings."
+}

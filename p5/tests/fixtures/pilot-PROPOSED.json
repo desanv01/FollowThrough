@@ -1,0 +1,9 @@
+{
+  "label": "PROPOSED_PILOT_INPUT_NOT_OBSERVED",
+  "episodes": 12,
+  "elapsed_seconds_per_episode": 600,
+  "actual_cost_micro_usd_per_episode": 100000,
+  "reserved_micro_usd_per_episode": 500000,
+  "remaining_balance_micro_usd": 19000000,
+  "max_total_reservation_micro_usd": 30000000
+}

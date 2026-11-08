@@ -1,0 +1,54 @@
+{
+  "schema_version": "p5-trajectory-0.1",
+  "available": true,
+  "observations": 4,
+  "checkpoints": [
+    {
+      "cell_id": "R1.ordinary.r1",
+      "trial": 1,
+      "checkpoint_id": "duplicate_replay",
+      "observations": 1,
+      "first_correct_sequence": 1,
+      "regression_after_first_correct": false,
+      "regression_sequences": [],
+      "repeated_unchanged_check": false,
+      "unchanged_input_sha256": []
+    },
+    {
+      "cell_id": "R1.ordinary.r1",
+      "trial": 1,
+      "checkpoint_id": "new_delivery",
+      "observations": 3,
+      "first_correct_sequence": 1,
+      "regression_after_first_correct": true,
+      "regression_sequences": [
+        2
+      ],
+      "repeated_unchanged_check": true,
+      "unchanged_input_sha256": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "type": "regression",
+      "cell_id": "R1.ordinary.r1",
+      "trial": 1,
+      "checkpoint_id": "new_delivery",
+      "sequences": [
+        2
+      ]
+    },
+    {
+      "type": "unchanged_input_repeat",
+      "cell_id": "R1.ordinary.r1",
+      "trial": 1,
+      "checkpoint_id": "new_delivery",
+      "input_sha256": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ]
+    }
+  ],
+  "note": "First-correct and repeated-check findings are diagnostic only; review them in context. They are not automatic penalties. No hidden grading is inferred."
+}

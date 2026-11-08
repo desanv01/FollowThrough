@@ -1,0 +1,1053 @@
+{
+  "schema_version": "p5-run-request-0.1",
+  "status": "DRAFT_NOT_AUTHORIZED",
+  "stage": "formal",
+  "evidence_kind": "real_provider",
+  "dataset_id": "p5-formal-PROPOSED",
+  "model_alias_proposed": "deepseek-flash",
+  "design": {
+    "count": 36,
+    "cells": [
+      {
+        "cell_id": "R1.structured_progress.r1",
+        "scenario_id": "R1",
+        "family": "retry-processing",
+        "arm": "structured_progress",
+        "trial": 1
+      },
+      {
+        "cell_id": "R1.ordinary.r1",
+        "scenario_id": "R1",
+        "family": "retry-processing",
+        "arm": "ordinary",
+        "trial": 1
+      },
+      {
+        "cell_id": "R2.ordinary.r1",
+        "scenario_id": "R2",
+        "family": "retry-processing",
+        "arm": "ordinary",
+        "trial": 1
+      },
+      {
+        "cell_id": "R2.structured_progress.r1",
+        "scenario_id": "R2",
+        "family": "retry-processing",
+        "arm": "structured_progress",
+        "trial": 1
+      },
+      {
+        "cell_id": "R3.structured_progress.r1",
+        "scenario_id": "R3",
+        "family": "retry-processing",
+        "arm": "structured_progress",
+        "trial": 1
+      },
+      {
+        "cell_id": "R3.ordinary.r1",
+        "scenario_id": "R3",
+        "family": "retry-processing",
+        "arm": "ordinary",
+        "trial": 1
+      },
+      {
+        "cell_id": "C1.ordinary.r1",
+        "scenario_id": "C1",
+        "family": "preview-cache",
+        "arm": "ordinary",
+        "trial": 1
+      },
+      {
+        "cell_id": "C1.structured_progress.r1",
+        "scenario_id": "C1",
+        "family": "preview-cache",
+        "arm": "structured_progress",
+        "trial": 1
+      },
+      {
+        "cell_id": "C2.structured_progress.r1",
+        "scenario_id": "C2",
+        "family": "preview-cache",
+        "arm": "structured_progress",
+        "trial": 1
+      },
+      {
+        "cell_id": "C2.ordinary.r1",
+        "scenario_id": "C2",
+        "family": "preview-cache",
+        "arm": "ordinary",
+        "trial": 1
+      },
+      {
+        "cell_id": "C3.ordinary.r1",
+        "scenario_id": "C3",
+        "family": "preview-cache",
+        "arm": "ordinary",
+        "trial": 1
+      },
+      {
+        "cell_id": "C3.structured_progress.r1",
+        "scenario_id": "C3",
+        "family": "preview-cache",
+        "arm": "structured_progress",
+        "trial": 1
+      },
+      {
+        "cell_id": "R3.ordinary.r2",
+        "scenario_id": "R3",
+        "family": "retry-processing",
+        "arm": "ordinary",
+        "trial": 2
+      },
+      {
+        "cell_id": "R3.structured_progress.r2",
+        "scenario_id": "R3",
+        "family": "retry-processing",
+        "arm": "structured_progress",
+        "trial": 2
+      },
+      {
+        "cell_id": "C1.structured_progress.r2",
+        "scenario_id": "C1",
+        "family": "preview-cache",
+        "arm": "structured_progress",
+        "trial": 2
+      },
+      {
+        "cell_id": "C1.ordinary.r2",
+        "scenario_id": "C1",
+        "family": "preview-cache",
+        "arm": "ordinary",
+        "trial": 2
+      },
+      {
+        "cell_id": "C2.ordinary.r2",
+        "scenario_id": "C2",
+        "family": "preview-cache",
+        "arm": "ordinary",
+        "trial": 2
+      },
+      {
+        "cell_id": "C2.structured_progress.r2",
+        "scenario_id": "C2",
+        "family": "preview-cache",
+        "arm": "structured_progress",
+        "trial": 2
+      },
+      {
+        "cell_id": "C3.structured_progress.r2",
+        "scenario_id": "C3",
+        "family": "preview-cache",
+        "arm": "structured_progress",
+        "trial": 2
+      },
+      {
+        "cell_id": "C3.ordinary.r2",
+        "scenario_id": "C3",
+        "family": "preview-cache",
+        "arm": "ordinary",
+        "trial": 2
+      },
+      {
+        "cell_id": "R1.ordinary.r2",
+        "scenario_id": "R1",
+        "family": "retry-processing",
+        "arm": "ordinary",
+        "trial": 2
+      },
+      {
+        "cell_id": "R1.structured_progress.r2",
+        "scenario_id": "R1",
+        "family": "retry-processing",
+        "arm": "structured_progress",
+        "trial": 2
+      },
+      {
+        "cell_id": "R2.structured_progress.r2",
+        "scenario_id": "R2",
+        "family": "retry-processing",
+        "arm": "structured_progress",
+        "trial": 2
+      },
+      {
+        "cell_id": "R2.ordinary.r2",
+        "scenario_id": "R2",
+        "family": "retry-processing",
+        "arm": "ordinary",
+        "trial": 2
+      },
+      {
+        "cell_id": "C2.structured_progress.r3",
+        "scenario_id": "C2",
+        "family": "preview-cache",
+        "arm": "structured_progress",
+        "trial": 3
+      },
+      {
+        "cell_id": "C2.ordinary.r3",
+        "scenario_id": "C2",
+        "family": "preview-cache",
+        "arm": "ordinary",
+        "trial": 3
+      },
+      {
+        "cell_id": "C3.ordinary.r3",
+        "scenario_id": "C3",
+        "family": "preview-cache",
+        "arm": "ordinary",
+        "trial": 3
+      },
+      {
+        "cell_id": "C3.structured_progress.r3",
+        "scenario_id": "C3",
+        "family": "preview-cache",
+        "arm": "structured_progress",
+        "trial": 3
+      },
+      {
+        "cell_id": "R1.structured_progress.r3",
+        "scenario_id": "R1",
+        "family": "retry-processing",
+        "arm": "structured_progress",
+        "trial": 3
+      },
+      {
+        "cell_id": "R1.ordinary.r3",
+        "scenario_id": "R1",
+        "family": "retry-processing",
+        "arm": "ordinary",
+        "trial": 3
+      },
+      {
+        "cell_id": "R2.ordinary.r3",
+        "scenario_id": "R2",
+        "family": "retry-processing",
+        "arm": "ordinary",
+        "trial": 3
+      },
+      {
+        "cell_id": "R2.structured_progress.r3",
+        "scenario_id": "R2",
+        "family": "retry-processing",
+        "arm": "structured_progress",
+        "trial": 3
+      },
+      {
+        "cell_id": "R3.structured_progress.r3",
+        "scenario_id": "R3",
+        "family": "retry-processing",
+        "arm": "structured_progress",
+        "trial": 3
+      },
+      {
+        "cell_id": "R3.ordinary.r3",
+        "scenario_id": "R3",
+        "family": "retry-processing",
+        "arm": "ordinary",
+        "trial": 3
+      },
+      {
+        "cell_id": "C1.ordinary.r3",
+        "scenario_id": "C1",
+        "family": "preview-cache",
+        "arm": "ordinary",
+        "trial": 3
+      },
+      {
+        "cell_id": "C1.structured_progress.r3",
+        "scenario_id": "C1",
+        "family": "preview-cache",
+        "arm": "structured_progress",
+        "trial": 3
+      }
+    ]
+  },
+  "units": [
+    {
+      "unit_id": "R1.structured_progress.r1",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R1.ordinary.r1",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R2.ordinary.r1",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R2.structured_progress.r1",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R3.structured_progress.r1",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R3.ordinary.r1",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C1.ordinary.r1",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C1.structured_progress.r1",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C2.structured_progress.r1",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C2.ordinary.r1",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C3.ordinary.r1",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C3.structured_progress.r1",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 1,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R3.ordinary.r2",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R3.structured_progress.r2",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C1.structured_progress.r2",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C1.ordinary.r2",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C2.ordinary.r2",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C2.structured_progress.r2",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C3.structured_progress.r2",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C3.ordinary.r2",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R1.ordinary.r2",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R1.structured_progress.r2",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R2.structured_progress.r2",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R2.ordinary.r2",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 2,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C2.structured_progress.r3",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C2.ordinary.r3",
+      "scenario_id": "C2",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C3.ordinary.r3",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C3.structured_progress.r3",
+      "scenario_id": "C3",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R1.structured_progress.r3",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R1.ordinary.r3",
+      "scenario_id": "R1",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R2.ordinary.r3",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R2.structured_progress.r3",
+      "scenario_id": "R2",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R3.structured_progress.r3",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "structured_progress",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "R3.ordinary.r3",
+      "scenario_id": "R3",
+      "family": "retry-processing",
+      "arm": "ordinary",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C1.ordinary.r3",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "ordinary",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    },
+    {
+      "unit_id": "C1.structured_progress.r3",
+      "scenario_id": "C1",
+      "family": "preview-cache",
+      "arm": "structured_progress",
+      "trial": 3,
+      "stage": "formal",
+      "evidence_expected": "real_provider",
+      "required_receipts": [
+        "operation_id",
+        "requested_and_returned_model",
+        "call_count",
+        "usage_tokens",
+        "reservation_and_settlement",
+        "cleanup_readback",
+        "candidate_sha256_and_requirement_version",
+        "protected_grade_receipt"
+      ],
+      "authorized": false,
+      "status": "DRAFT_FOR_REVIEW"
+    }
+  ],
+  "bounds": {
+    "calls_per_episode": 16,
+    "max_output_tokens": 2048,
+    "seconds_per_call": 25,
+    "reserve_micro_usd_per_call": 50000,
+    "max_reservation_micro_usd_per_episode": 800000,
+    "max_total_reservation_micro_usd": 28800000,
+    "wall_seconds_total": 14400,
+    "concurrency": 1
+  },
+  "worst_case_reservation_micro_usd": 28800000,
+  "freeze_ids": {
+    "status": "PROPOSED_NOT_FROZEN",
+    "freeze_manifest": "PENDING-G4-FREEZE",
+    "source_commit": "45374ce6dfa9212a44cae495a26a2bf81ed0bd78",
+    "note": "Placeholder dependency for a run-request draft; not a freeze."
+  },
+  "review": {
+    "p4_freeze_required": true,
+    "p3_operator_required": true,
+    "p5_independent_verifier_required": true,
+    "main_authorization_required": true
+  },
+  "stop_rules": [
+    "Stop on unknown cleanup or unknown settlement.",
+    "Stop on reservation refusal or identity mismatch.",
+    "No automatic paid retry; a retry needs the frozen attempt policy.",
+    "Preserve every denied, failed or stopped attempt."
+  ],
+  "note": "Planning artifact only. No provider call is authorized by this file."
+}

@@ -1,0 +1,6 @@
+{
+  "status": "PROPOSED_NOT_FROZEN",
+  "freeze_manifest": "PENDING-G4-FREEZE",
+  "source_commit": "45374ce6dfa9212a44cae495a26a2bf81ed0bd78",
+  "note": "Placeholder dependency for a run-request draft; not a freeze."
+}

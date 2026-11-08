@@ -127,6 +127,33 @@ class CacheSim:
         pass
 
 
+class CacheShimBoundaryTests(unittest.TestCase):
+    def test_shim_reads_error_class_from_error_object(self):
+        import protected.cache_shim as shim
+        recorded = []
+        old_write, old_read = shim._write, shim._read
+        try:
+            shim._write = lambda frame: recorded.append(frame)
+            shim._read = lambda: {"type": "renderer_result", "ok": False,
+                                  "error": {"class": "RendererBoom",
+                                            "message": "boom"}}
+            with self.assertRaises(Exception) as ctx:
+                shim.RemoteRenderer(0)("p", "d", 1, "full")
+            self.assertEqual(type(ctx.exception).__name__, "RendererBoom")
+            self.assertEqual(recorded[0]["type"], "renderer")
+        finally:
+            shim._write, shim._read = old_write, old_read
+
+    def test_host_accepts_scalar_candidate_cache_keys(self):
+        host = pc.CacheHost()
+        ok, value = host.handle_cache("contains", ["doc"])
+        self.assertTrue(ok)
+        self.assertFalse(value)
+        ok, value = host.handle_cache("setitem", ["doc", "text"])
+        self.assertTrue(ok)
+        self.assertEqual(host.snapshot(), [[["scalar", "doc"], "text"]])
+
+
 class CacheProtectedTests(unittest.TestCase):
     def test_qualified_cache_witness_is_checked_after_start(self):
         class Qualified(CacheSim):

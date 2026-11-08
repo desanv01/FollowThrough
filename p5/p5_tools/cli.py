@@ -11,7 +11,7 @@ import json
 import sys
 from pathlib import Path
 
-from . import analysis, design, ledger, recompute, reproduce, trajectory
+from . import analysis, design, ledger, receipts, recompute, reproduce, trajectory
 
 
 def _read_json(path):
@@ -59,6 +59,10 @@ def main(argv=None):
     p.add_argument("--report", required=True)
     p.add_argument("--json", required=True)
     p.add_argument("--formal", action="store_true")
+
+    p = sub.add_parser("validate-receipt")
+    p.add_argument("--receipt", required=True)
+    p.add_argument("--json", required=True)
 
     p = sub.add_parser("trajectory")
     p.add_argument("--observations", required=True)
@@ -108,6 +112,8 @@ def main(argv=None):
         elif args.cmd == "recompute":
             out = recompute.compare(_read_json(args.input), _read_json(args.report),
                                     formal=args.formal)
+        elif args.cmd == "validate-receipt":
+            out = receipts.validate_receipt(_read_json(args.receipt))
         elif args.cmd == "trajectory":
             payload = _read_json(args.observations)
             observations = payload.get("observations") if isinstance(payload, dict) else payload

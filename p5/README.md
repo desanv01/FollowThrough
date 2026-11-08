@@ -31,6 +31,7 @@ Run from this `p5/` directory:
 python -B -m unittest discover -s tests -t tests -v
 python -B -m p5_tools.cli design --json examples/design-PROPOSED.json
 python -B -m p5_tools.cli recompute --input <report-input.json> --report <report.json> --json <out>
+python -B -m p5_tools.cli validate-receipt --receipt <attempt-receipt.json> --json <out>
 python -B -m p5_tools.cli analyze --dataset examples/empty-formal.json --formal 
     --json examples/analysis-EMPTY-FORMAL.json --md examples/analysis-EMPTY-FORMAL.md
 ```
@@ -59,4 +60,5 @@ sandbox fails at `tempfile.TemporaryDirectory` setup because mode-0700
 directories are inaccessible. The rehearsal used a wrapper that changes only
 `tempfile.mkdtemp` creation mode; grader source was not edited. This is tracked
 as issue P5-ISS-001 and does not by itself qualify the exact runbook command.
+
 

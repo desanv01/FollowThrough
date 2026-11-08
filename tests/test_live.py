@@ -100,6 +100,22 @@ def synthetic_check(request):    return {
     }
 
 
+def real_check(request):
+    """Realistic live check-port double; bridge-shaped, no Docker/provider."""
+    return {
+        "schema_version": "check-port-0.1",
+        "request_id": request["request_id"],
+        "evidence_kind": "real_container_check",
+        "candidate_sha256": request["candidate_sha256"],
+        "requirements_version": request["requirements_version"],
+        "status": "passed",
+        "exit_code": 0,
+        "stdout": "authored public checks passed\n",
+        "stderr": "",
+        "cleanup": "settled",
+    }
+
+
 def synthetic_grade(candidate_sha256, candidate_path):
     return {
         "candidate_sha256": candidate_sha256,
@@ -215,16 +231,19 @@ class FakeRunner:
         self.operations = []
         self.scenarios = []
         self.arms = []
+        self.check_evidence_kinds = []
 
     def __call__(self, run_root, *, episode_id, live, operation, model_port,
                  check_port, grade_fn, trial=1, dataset_id="ds-end-to-end-r1",
-                 stage=None, scenario_id=None, arm=None):
+                 stage=None, scenario_id=None, arm=None,
+                 check_evidence_kind=None):
         self.calls.append(run_root)
         self.episode_ids.append(episode_id)
         self.live_values.append(live)
         self.operations.append(operation)
         self.scenarios.append(scenario_id)
         self.arms.append(arm)
+        self.check_evidence_kinds.append(check_evidence_kind)
         response = model_port(request())
         return {
             "row": {"status": "completed_claim", "outcomes": {"candidate": "ok"}},
@@ -475,6 +494,7 @@ class LiveCompositionTest(unittest.TestCase):
         self.assertEqual(forwarded["reserved_micro_usd"], 1200)
         self.assertEqual(forwarded["estimated_cost_micro_usd"], 1)
         self.assertEqual(forwarded["call_count"], 1)
+        self.assertEqual(runner.check_evidence_kinds, ["real_container_check"])
 
     def test_runner_without_full_contract_is_refused_before_call(self):
         runner = UnsupportedRunner()
@@ -639,7 +659,7 @@ class LiveCompositionTest(unittest.TestCase):
             run_root, episode_id="ep-live-contract",
             operation=operation, live=True,
             model_port=scripted_port(run_root),
-            check_port=synthetic_check, grade_fn=protected_grade,
+            check_port=real_check, grade_fn=protected_grade,
         )
         self.assertEqual(result["episode_id"], "ep-live-contract")
         self.assertEqual(result["row"]["episode_id"], "ep-live-contract")
@@ -662,7 +682,7 @@ class LiveCompositionTest(unittest.TestCase):
                            "run_id": "run:live:2"},
                 live=True, model_port=scripted_port(
                     self.root / "live-contract-synthetic-grade"
-                ), check_port=synthetic_check, grade_fn=synthetic_grade,
+                ), check_port=real_check, grade_fn=synthetic_grade,
             )
 
     def test_fake_provider_rehearsal_with_isolated_ledger_and_lock(self):

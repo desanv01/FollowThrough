@@ -24,6 +24,7 @@ from .workspace import EpisodeWorkspace, WorkspaceError
 SCHEMA_VERSION = "episode-local-0.1"
 EVIDENCE_KIND = "synthetic_episode_control"
 CHECK_SCHEMA_VERSION = "check-port-0.1"
+CHECK_EVIDENCE_KINDS = ("synthetic_check", "real_container_check")
 ROLES = ("O1", "W1", "R1")
 SCENARIOS = ("R1", "R2", "R3", "C1", "C2", "C3")
 ARMS = ("ordinary", "structured_progress")
@@ -52,6 +53,7 @@ CONFIG_KEYS = frozenset({
     "episode_id", "scenario_id", "arm", "workspace", "output_dir",
     "requirements_version", "scheduled_events", "max_model_responses",
     "max_tool_actions", "max_elapsed_ms", "max_context_bytes", "evidence_kind",
+    "check_evidence_kind",
 })
 EVENT_KEYS = frozenset({"boundary", "kind", "version", "text", "source_sha256"})
 RESPONSE_KEYS = frozenset({"action", "usage", "requested_model", "returned_model"})
@@ -205,6 +207,8 @@ def _validate_config(config):
         raise EpisodeConfigError("relative_path")
     if config["evidence_kind"] != EVIDENCE_KIND:
         raise EpisodeConfigError("invalid_evidence_kind")
+    if config["check_evidence_kind"] not in CHECK_EVIDENCE_KINDS:
+        raise EpisodeConfigError("invalid_check_evidence_kind")
     bounds = (
         ("max_model_responses", 1, 60),
         ("max_tool_actions", 1, 120),
@@ -295,6 +299,7 @@ class _Engine:
             if receipt_event["source_sha256"] != self.ws.initial_candidate_sha256:
                 raise EpisodeConfigError("receipt_source_hash_mismatch")
         self.requirements_version = config["requirements_version"]
+        self.check_evidence_kind = config["check_evidence_kind"]
         self.current_candidate_sha256 = self.ws.initial_candidate_sha256
         self.initial_candidate_sha256 = self.ws.initial_candidate_sha256
         self.histories = {role: [] for role in ROLES}
@@ -1012,7 +1017,7 @@ class _Engine:
             return "check_schema_version"
         if receipt["request_id"] != request["request_id"]:
             return "check_request_id"
-        if receipt["evidence_kind"] != "synthetic_check":
+        if receipt["evidence_kind"] != self.check_evidence_kind:
             return "check_evidence_kind"
         if receipt["candidate_sha256"] != request["candidate_sha256"]:
             return "check_candidate_sha256"
@@ -1266,6 +1271,9 @@ def run_episode(config, *, model_port, check_port, cancelled=None, monotonic=Non
         raise EpisodeConfigError("cancelled_not_callable")
     if monotonic is not None and not callable(monotonic):
         raise EpisodeConfigError("monotonic_not_callable")
+    if type(config) is dict and "check_evidence_kind" not in config:
+        config = dict(config)
+        config["check_evidence_kind"] = "synthetic_check"
     engine = None
     try:
         engine = _Engine(

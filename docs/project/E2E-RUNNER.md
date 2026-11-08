@@ -1,19 +1,27 @@
-# R1 end-to-end runner identity and live-mode seam (P4.1.1 candidate)
+# R1 end-to-end runner identity and live-mode seam (P4.1.1/P4.1.2 candidate)
 
-Status: **offline candidate; no provider/grade/Docker execution.** Implementation: `episode/e2e.py`; tests: `tests/test_e2e_identity.py` (11 tests).
+Status: **offline candidate; completion of six-scenario/two-arm composition; no provider/grade/Docker execution.** Implementation: `episode/e2e.py`; tests: `tests/test_e2e_identity.py` (11) and `tests/test_e2e_scenarios.py` (12 cells).
 
-`run_r1_smoke(run_root, *, episode_id, check_port, model_port, grade_fn, ...)` composes the accepted episode driver, an injected check port, the actual model port and an injected host grade callback. It preserves the reviewed `episode_id` in the driver result, report row, binding and saved records; it refuses invalid identity and never substitutes the scripted `ds-r1-scripted` identity.
+`run_r1_smoke(...)` is the preserved R1/ordinary entry point. `run_scenario_smoke(..., scenario_id, arm, ...)` is the generic composition over the accepted six-scenario catalog and both arms. Both require actual model/check ports and an injected grade callback; neither selects an authored port or grade.
+
+## Six-scenario/two-arm composition
+
+- The generic runner passes `scenario_id` and `arm` to the accepted driver, derives the candidate filename (`processor.py` for Retry, `preview.py` for Cache), and preserves the episode/run/source/version identity in the row, report and binding.
+- It rejects unknown scenario/arm values before dispatch.
+- It uses the accepted scenario config/event schedule, including C2/C3 requirements-update and authored-receipt events; synthetic composition tests assert C2/C3 end at requirements v2.
+- Public-check receipts and the host grade callback are injected by the caller. The runner does not synthesize a protected grade, and it does not call the grade callback when check receipts are missing or any cleanup is unknown.
+- Twelve synthetic cells (six scenarios × two arms) build one report with 12 groups, all synthetic/development and strict-fail partial claims; this is composition evidence, not correctness or pilot evidence.
 
 ## Safety rules
 
-- **Actual ports required:** `model_port` and `check_port` are mandatory and callable. The runner has no authored model/check fallback; the `scripted_r1_model_port` helper exists only for tests and is never selected automatically. Authored reference source is not read by the runner.
-- **No grade after unsafe checks:** if there is no check receipt or any check receipt has `cleanup != settled`, the runner does **not** call `grade_fn`. It writes an `infrastructure_error`/all-unknown row, a binding with `grade_skipped_reason`, `grade-skipped.json`, and progress receipts. No `protected-grade.json` is written.
-- **Provenance:** evidence kind comes from the supplied operation (`operation.evidence_kind`) when provided, otherwise from the actual protected grade receipt; synthetic stays synthetic. In `live=True` mode the operation must carry `evidence_kind=real_provider`, an `operation_id` and a `run_id`; otherwise the runner refuses before dispatch. `stage` comes from the operation or caller; default development.
-- **Identity:** row/binding preserve episode, run/operation IDs, candidate SHA-256 and requirements version. Result/source/grade mismatch produces an invalid/excluded row with unknown outcomes; no guessing.
-- **P3 contract:** `episode.live.run_live_r1` passes `episode_id`, `model_port`, `check_port` and `grade_fn`; the integration test plus a fake-port campaign smoke prove the identity is preserved and a 9-call report row is produced. This is **not** provider evidence.
-- **Progress/report:** sanitized `progress-events.jsonl`, `progress-meta.json`, `progress.json`/`progress.txt` and report files are written. Progress fields are bounded type/role/status/action/elapsed/evidence only; raw prompts/stdout/stderr are never copied. Costs come only from supplied operation metadata and remain unknown when absent.
-- **No provider/ledger/Docker:** this module never launches them. P3 remains the paid operator; P2 owns the trusted bridge/grade; G2/G3/G4 and the canonical ledger remain pending.
+- Actual ports required: `model_port` and `check_port` must be callable; no authored fallback/reference read.
+- Unsafe check cleanup: no grade call; `infrastructure_error`/all-unknown row, `grade-skipped.json`, no protected-grade file.
+- `live=True`: operation must carry `evidence_kind=real_provider`, nonempty `operation_id` and `run_id`, and the grade must be protected-container provenance; P3 owns forwarding these. `stage`/provenance come from the operation or caller; synthetic stays synthetic. A protected grade or real-provider label without live mode is refused.
+- Identity mismatch: invalid/excluded, unknown outcomes; no guessing.
+- Progress: sanitized `progress-events.jsonl`, `progress-meta.json`, `progress.json`/`.txt`; raw prompts/stdout/stderr never copied. Costs only from supplied operation metadata.
+- No provider/ledger/Docker/candidate-host operation in this module. P3 is the dispatcher; P2 owns trusted check/grade.
 
 ## Files written
 
-`report-input.json`, `report.json`, `report.md`, `protected-grade.json` (only when a grade was actually started), `episode-binding.json`, `progress-events.jsonl`, `progress-meta.json`, `progress.json`, `progress.txt`; unsafe-check stops add `grade-skipped.json` and no grade file.
+`report-input.json`, `report.json`, `report.md`, `protected-grade.json` (only when grade started), `episode-binding.json`, `progress-events.jsonl`, `progress-meta.json`, `progress.json`, `progress.txt`; unsafe-check stops add `grade-skipped.json` and no grade file.
+

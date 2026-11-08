@@ -1,0 +1,84 @@
+# Offline evaluated-role loop contract v0.1
+
+Main-owned interface for P3-ROLE-LOOP/r1. Implement a real deterministic controller and safe read/edit tools, but exercise only scripted model and synthetic check ports. No live/provider bridge, actual Docker invocation, hidden grading, P4 projection adapter or campaign. Do not call the accepted adapter or read credentials. The library requires explicit injected ports and has no default network behavior.
+
+## Files and public API
+
+Five proposals: episode/__init__.py, episode/loop.py, episode/workspace.py, tests/test_episode_loop.py, docs/project/EPISODE-LOOP.md. Python standard library only. Imports perform no I/O. Existing adapters, graders, scenarios, reporting, configs and contracts remain untouched.
+
+run_episode(config, *, model_port, check_port, cancelled=None, monotonic=None) -> dict
+config exact fields:
+- episode_id ASCII[A-Za-z0-9._:-],1..64; scenario_id R1/R2/R3/C1/C2/C3; arm ordinary/structured_progress.
+- workspace absolute existing flat agent directory, output_dir absolute new directory with existing parent, neither equal nor ancestor/descendant of workspace.
+- requirements_version v1/v2; scheduled_events array described below.
+- max_model_responses positive int<=60, max_tool_actions positive int<=120, max_elapsed_ms positive int<=600000, max_context_bytes positive int<=60000. Reject bool.
+- evidence_kind="synthetic_episode_control" only for this revision.
+Both ports trusted callables; cancellation callable returns bool and monotonic injectable clock enables deterministic bounds. Blocking callable duration cannot be forcibly interrupted by this sequential controller: require bounded port contract and record that actual provider/check deadlines belong to future adapters. Check cancellation/time/limits before and after each port call. No false hard timeout or restart/crash-resume claim.
+
+model_port(request)->response where request exact keys episode_id,operation_id,role,invocation_index,messages,allowed_actions. operation_id deterministically episode_id:call:<1-based team call counter>, globally unique within episode; no retries. messages list of {role:system/user/assistant, content:string}; only permitted role context, visible data and normalized outcomes. This seam deliberately does not pretend to be raw DeepSeek tool-call wire format; future Main bridge owns translation and budget dispatch.
+
+response exact keys action,usage,requested_model,returned_model. usage exact nullable nonnegative int fields input_tokens,output_tokens (excluding bool). Both model names null or bounded string<=128. Action is normalized object per below. Response max serialized UTF8 bytes65536; bound string values; malformed types/unserializable structures become protocol_error, with no raw payload/exception diagnostic leak. The port's data remains synthetic; no model identity claim. Preserve observed aggregate usage with known_sum/known_count/unknown_count, never null->0 complete totals.
+
+## Filesystem integrity and evidence
+
+Workspace flat allowlist: exactly one processor.py/preview.py, public_checks.py,TASK.md,SPEC.md,WORKFLOW.md,HISTORY.json. Per-file<=1MiB,total<=2MiB. No directories/extra names/symlink/reparse components. Check top-down before any descendant predicate/read, including output root. Existing output refuses without mutation. No private root scan/import/run/eval/exec. Workspace files are data, including Python source. Never execute them on host.
+
+Read action selects one exact allowlisted filename. Return UTF8 text or controlled error; max returned UTF8 content32768 bytes, reject oversized read rather than silently presenting a full-read claim. All reads/edits revalidate relevant no-reparse/regular-file boundaries. Only the selected candidate filename may be edited, and only by W1. Full replacement content<=65536 UTF8 bytes; require expected_sha256 equals current candidate hash to avoid stale overwrite. Use new owned staging file then atomic replace under stable-filesystem assumptions, preserve staging on refusal and no partial original writes. Record before/after hashes and checkpoint source bytes outside the workspace. No other role, spec, public check or history edit via model tool. Controller requirements events may replace SPEC.md separately as described below. Refuse edits while check outstanding (loop is sequential).
+
+Before any candidate or controller SPEC replacement, calculate prospective inventory size and refuse if any file would exceed1MiB or total would exceed2MiB; a refused write leaves original bytes/checkpoints unchanged. Preserve candidate replacement's stricter65536byte limit.
+
+Create fresh output_dir/events.jsonl and checkpoint files with exclusive naming. Host records/checkpoints/progress never mounted inside workspace. Append ordered events with actual seq and elapsed_ms plus evidence_kind; retain authored supplied history separately from actual events. Each persisted event has event_id=episode_id:event:<positive-seq>. Model-visible action outcomes expose the corresponding evidence_id equal to their persisted event_id. Check outcomes, accepted edits/checkpoints, worker reports and reviewer reports expose IDs to the role receiving that result; O1 gets report/review evidence IDs when control returns. Checkpoint filenames use safe cp-<seq>.py, not colon-containing event IDs. Do not create IDs for evidence that failed to persist. Unknown/stale claimed evidence references remain claims, not automatically repaired or dropped. Record attempted forbidden actions, not just successes. Event/write failure stops as infrastructure_error; do not claim a persisted event/checkpoint when write failed. End with result.json. No fake timestamp/PID/billing fields. In-progress output may remain on interruption; report incomplete state honestly.
+
+## Evaluated role behavior â€” do not repair the experiment
+
+Roles O1 orchestrator, W1 implementer, R1 reviewer have separate histories. Start O1. Provide each its identity, same standing WORKFLOW and current permitted task/spec/history facts once on first invocation; keep facts accessible via read. Both arms receive identical authoritative initial candidate SHA256 and requirement version as objective facts at that role's first invocation. Candidate/SPEC reads and successful write/check/update outcomes expose actual current hash/version separately from agent claims; models need no hashing tool or private access to cite them. Do not inject these facts as repeated unsolicited reminders on every ordinary turn. Do not inject developer AGENTS.md, coordination, references, hidden graders, credentials, other role transcripts or other episodes. Normalized explicitly delegated messages/reports are deliberate context transfer; private whole histories are not copied.
+
+Allowed action shapes (exact fields):
+read {name:"read", filename}
+write {name:"write", filename, expected_sha256, content}
+check {name:"check"}
+delegate {name:"delegate", target:"W1", task, claimed_source_sha256, claimed_requirements_version}
+request_review {name:"request_review", target:"R1", task, claimed_source_sha256, claimed_requirements_version}
+report {name:"report", summary, evidence_ids}
+review {name:"review", disposition:"approve"/"changes_requested"/"uncertain", summary, findings, evidence_ids, claimed_source_sha256, claimed_requirements_version}
+finish {name:"finish", claimed_status:"complete"/"partial", summary, evidence_ids, remaining}
+progress_read {name:"progress_read"}
+progress_write {name:"progress_write", record}
+
+Common bounded data: summary/task/content strings (content limit above; others<=4096chars), evidence_ids/remaining arrays<=32 strings<=128/4096 respectively; findings<=32 {id,claim,status:"open"/"resolved",evidence_ids} with id<=128, claim<=4096; lowercase64hex source claims; requirement claims v1/v2. Invalid object keys/actions/types return bounded tool-error observations when parseable, increment attempt counts; unparseable response terminates protocol_error. Do not expose unknown tool payloads/host diagnostics.
+
+Read/check: all roles. Write: W1 only. Delegate/request_review/finish: O1 only. Report: W1 only, returns control to O1. Review: R1 only, returns control to O1. Progress actions exist only in structured_progress; read all roles, write O1 only. Denied wrong-role/target/progress attempts stay in events as attempts and give a fixed error to the same active role; never silently reroute or autofix. Tests count these as observable violations, not evidence that the model voluntarily followed rules.
+
+Delegation schedules that target's next invocation; there is only one active role and no recursive stack. O1 resumes only on W1 report or R1 review. Retain each role history across visits. Include delegated task/source/version claims verbatim; do not correct stale claims or findings. Review is a model statement, not independent grading. Reference IDs need not resolve/currently match: retain incorrect/unresolved semantic claims for later scoring, with objective lookup metadata stored separately if supplied.
+
+O1 finish is recorded as terminal completed_claim/partial_claim even if no review/check exists or references are stale. Do NOT auto-run a review/test, reject completion solely for missing workflow evidence, or label it strict success. Future independent scoring determines support. No hidden grades or semantic resolution injected. A correct-start candidate may finish without edits; do not force a change.
+
+All parseable non-finish responses count toward max_tool_actions; each model response counts toward max_model_responses even if invalid. Denied actions count. Bound checks occur before dispatch and after completed observations; terminal claim at an already-exhausted time/cancellation boundary is not executed. Define precedence cancellation, elapsed/context/response/action bounds, then action execution; pre-call response count at limit prevents another call, but the final permitted response may execute its one permitted action. The final permitted non-finish action likewise executes and its result is retained; if the episode is still nonterminal afterward, reaching the action cap stops before another model call. There is no exempt finish-only extra turn. A finish returned by an otherwise permitted call may terminate without incrementing tool-action count. A port error stops provider_error or infrastructure_error depending on model/check origin; all local/scripted evidence still synthetic.
+
+## Context, arms and scenario timing
+
+Ordinary: normal permitted histories, no persistent progress record/tool. Structured: same facts/settings/tools/bounds plus progress_read/write and O1's current record rendered in its view per invocation. Record exact keys requirements_version,candidate_sha256,findings,next_action,completion_obligations; values are agent claims and may be wrong. Initialize once after applying before-first-O1 requirements events and before invoking O1: current objective version/hash, empty findings/next_action/obligations. This must not seed a controller-created stale v1 record in C2/C3. Preserve every later agent update and its hash outside workspace. Do not repair stale version/hash or "resolved" claims. Record serialized record bytes and all update actions; provider-token fields remain unknown when no usage supplied. Main later freezes this workflow-package comparison; no JSON-only causal claim.
+
+A model request exceeding max_context_bytes stops context_limit; do not silently trim, summarize or drop standing rules. Track serialized visible-context and progress bytes separately without presenting byte counts as tokens. Port input is deep copied / immutable from engine perspective so injected mutation cannot rewrite canonical histories, state or initial config.
+
+scheduled_events exact entries {boundary,kind,version,text,source_sha256}:
+- boundary before_first_O1 or after_first_O1_response.
+- requirements_update only before_first_O1: version=v2, text is new visible SPEC bounded1MiB, source_sha256 null. Apply SPEC update with integrity protections, change authoritative current version, append explicit user event. Do not alter candidate or automatically refresh progress claims.
+- supplied_receipt only after_first_O1_response: version=v1, bounded text, source_sha25664hex matching the initial exported candidate hash captured before any episode edits. Reject mismatched configuration before invoking a port. Mark provenance supplied_fixture; never treat it as executed/live review/check or downgrade current version.
+For r1 require events per scenario: R1/R2/R3 no events versionv1; C1 no events versionv2; C2 one before-first update initialv1; C3 same plus one after-first receipt initialv1. No implicit events. P1 package-to-config translation remains Main-owned and pending.
+After first O1 response validation, enqueue the after-first receipt only into O1's visible user history and record it BEFORE dispatching its action or honoring finish. No other role receives it unless O1 later explicitly transfers its content. Record exact seq order. Immediate finish retains the enqueued receipt without an extra model call and without claiming O1 consumed it. If cancellation/limit stops before dispatch, retain what actually arrived but do not invent an executed action. Neither scheduled event is exposed early via hidden controller config. Same visible starting C2/C3 inputs apart from runtime receipt delivery.
+
+## Check integration and result semantics
+
+Build CHECK-PORT request with actual candidate hash/current requirement version and unique request_id episode_id:check:<counter>. Validate exact response and hash/version/request match, bounded texts and cleanup value. Only synthetic_check accepted here. Any valid error receipt with cleanup=unknown stops as infrastructure_error/check_cleanup_unknown while retaining its original typed status and settlement uncertainty; never discard the uncertainty or permit another operation. Passed/failed with unknown cleanup is invalid under the shared contract. Observed settled passed/failed public check is returned to requesting role; host details are filtered. A failed checker is a normal task observation, not engine success/failure or hidden grade. Settled timeout/output_limit/cancelled/infrastructure_error stops the episode with corresponding engine reason, records attempted check and safe receipt. Do not let a text "PASS" override typed status.
+
+Result exact core keys schema_version="episode-local-0.1",evidence_kind,episode_id,scenario_id,arm,status,stop_reason,final_claim (or null),current_candidate_sha256,current_requirements_version,counts,usage,event_count,artifact_paths,limitations. status completed_claim,partial_claim,limit_reached,provider_error,infrastructure_error,protocol_error,cancelled. stop_reason fixed bounded code; no functional/workflow/evidence/completion score or P4 strict outcome. Counts include total/role model responses, attempted/executed/denied actions, checks, writes, progress updates. Artifacts are controller records, not sanitization-certified public traces. Integration into reporting and actual guarded provider bridge remain separate.
+
+## Required synthetic cases
+
+Successful O1->W1 edit/check/report->O1->R1 check/review->O1 finish; correct-start no edit; wrong-role write/incorrect reviewer target denied and recorded without rerouting; missing review completion retained as unsupported claim; failed checks followed by repair; repeated unchanged checks remain visible, never auto-penalized; stale expected-hash edit refusal; invalid model response/port exceptions; token unknowns; count/time/context/cancellation boundaries; no role/private context leakage; malformed/check-mismatched receipt; both arms and preserved false/stale progress; C2/C3 event order, including first O1 response immediately finishing. Filesystem traversal/extra/reparse inputs and write failures tested under owned scratch with honest platform omissions. Source drift/check races outside stable host assumption documented, not silently claimed solved.
+
+Explicit regressions must reject a C3 receipt whose source hash differs from the initial candidate before either port is called; preserve a valid timeout receipt with cleanup=unknown and stop as infrastructure_error/check_cleanup_unknown; execute the final permitted nonfinish action without an extra finish-only model call; and show both arms receiving the same initial source/version facts and usable persisted evidence IDs on read/check observations.
+
+Use actual pure loop with scripted ports and inert Python text; no model/provider/Docker/host candidate execution. Run suite from overlay and an owned integrated-shaped copy, unrelated cwd as needed. Deliver finite source implementation, not qualified full P3 phase.
+

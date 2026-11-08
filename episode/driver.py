@@ -185,6 +185,7 @@ def run_scenario(
     limits,
     model_port,
     check_port,
+    check_evidence_kind="synthetic_check",
     cancelled=None,
     monotonic=None,
 ):
@@ -231,6 +232,7 @@ def run_scenario(
             output_dir=episode_path,
             limits=limits,
         )
+        config["check_evidence_kind"] = check_evidence_kind
     except Exception as exc:
         code = _bounded_error(exc)
         envelope = _envelope("preparation_error", None, package_path, None, code)

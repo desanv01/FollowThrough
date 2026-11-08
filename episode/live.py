@@ -926,6 +926,10 @@ def run_live_r1(run_root, *, episode_id, model_port, check_port, grade_fn,
         runner_kwargs["arm"] = arm
     if operation.get("stage") is not None:
         runner_kwargs["stage"] = operation["stage"]
+    if live:
+        if not _runner_supports_names(runner, ("check_evidence_kind",)):
+            raise LiveGateError("check_evidence_kind_runner_unsupported")
+        runner_kwargs["check_evidence_kind"] = "real_container_check"
 
     def snapshot():
         if callable(ledger_snapshot):

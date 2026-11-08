@@ -135,6 +135,13 @@ def _events_from_checks(receipts, result):
     return events
 
 
+def _report_events(run_root, receipts, result, live):
+    """Use the bounded actual event stream in live mode; synthetic stays authored."""
+    if live:
+        return _safe_progress_events(run_root)
+    return _events_from_checks(receipts, result)
+
+
 def _safe_progress_events(run_root):
     """Project driver events to bounded display fields only; never raw text."""
     path = Path(run_root) / "episode" / "events.jsonl"
@@ -213,12 +220,14 @@ def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
                        arm="ordinary", check_port=None, model_port=None,
                        grade_fn=None, observations=None, evidence_kind=None,
                        stage=None, trial=1, operation=None,
-                       dataset_id="ds-end-to-end-r1", live=False):
+                       dataset_id="ds-end-to-end-r1", live=False,
+                       check_evidence_kind=None):
     """Run one scenario/arm episode with required ports and explicit identity.
 
     ``run_r1_smoke`` is the preserved R1/ordinary entry point. This generic form
     is for the six-scenario/two-arm composition; it never selects an authored
-    port or grade and never fills a missing outcome.
+    port or grade and never fills a missing outcome. Live mode requires an
+    explicit trusted real-container check provenance; synthetic mode rejects it.
     """
     episode_id = _valid_episode_id(episode_id)
     if scenario_id not in runtime_projection.SCENARIOS:
@@ -231,6 +240,14 @@ def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
         raise E2EError("actual_model_port_required")
     if check_port is None or not callable(check_port):
         raise E2EError("actual_check_port_required")
+    if check_evidence_kind is None:
+        check_evidence_kind = "synthetic_check"
+    if check_evidence_kind not in ("synthetic_check", "real_container_check"):
+        raise E2EError("invalid_check_evidence_kind")
+    if live and check_evidence_kind != "real_container_check":
+        raise E2EError("live_check_provenance_required")
+    if not live and check_evidence_kind != "synthetic_check":
+        raise E2EError("synthetic_check_provenance_required")
     operation = operation if isinstance(operation, dict) else {}
     if live:
         if operation.get("evidence_kind") != "real_provider":
@@ -259,6 +276,7 @@ def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
         limits=dict(LIMITS),
         model_port=model_port,
         check_port=capture_check,
+        check_evidence_kind=check_evidence_kind,
     )
     if envelope.get("status") != "episode_returned":
         return {"envelope": envelope, "episode_id": episode_id,
@@ -275,7 +293,7 @@ def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
         "candidate_sha256": result.get("current_candidate_sha256"),
         "requirements_version": result.get("current_requirements_version"),
     }
-    events = _events_from_checks(receipts, result)
+    events = _report_events(run_root, receipts, result, live)
     reason = None
     if not receipts:
         reason = "check_receipt_missing"
@@ -340,7 +358,7 @@ def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
         stage = operation.get("stage") or "development"
     if live and evidence_kind != "real_provider":
         raise E2EError("live_grade_provenance_mismatch")
-    events = _events_from_checks(receipts, result)
+    events = _report_events(run_root, receipts, result, live)
     row, binding = runtime_projection.project_episode(
         result,
         events,
@@ -387,13 +405,15 @@ def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
 def run_r1_smoke(run_root, *, episode_id, check_port=None, model_port=None,
                  grade_fn=None, observations=None, evidence_kind=None,
                  stage=None, trial=1, operation=None,
-                 dataset_id="ds-end-to-end-r1", live=False):
+                 dataset_id="ds-end-to-end-r1", live=False,
+                 check_evidence_kind=None):
     """Preserved R1/ordinary entry point backed by the generic composition."""
     return run_scenario_smoke(
         run_root, episode_id=episode_id, scenario_id="R1", arm="ordinary",
         check_port=check_port, model_port=model_port, grade_fn=grade_fn,
         observations=observations, evidence_kind=evidence_kind, stage=stage,
         trial=trial, operation=operation, dataset_id=dataset_id, live=live,
+        check_evidence_kind=check_evidence_kind,
     )
 
 

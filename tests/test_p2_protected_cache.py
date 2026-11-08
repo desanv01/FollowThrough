@@ -128,6 +128,22 @@ class CacheSim:
 
 
 class CacheProtectedTests(unittest.TestCase):
+    def test_qualified_cache_witness_is_checked_after_start(self):
+        class Qualified(CacheSim):
+            qualified = True
+
+            def start(self):
+                self.witness = {"verified": True, "id": "a" * 64}
+
+            def isolation_witness(self):
+                return self.witness
+
+        receipt = pc.grade_cache(
+            Qualified("v2"), "a" * 64,
+            evidence_kind="protected_container_grading",
+            requirements_version="v2")
+        self.assertEqual(receipt["status"], "passed")
+
     def test_correct_v2_control_passes(self):
         receipt = pc.grade_cache(CacheSim("v2"), "a" * 64,
                                  evidence_kind="synthetic_development")
@@ -137,12 +153,20 @@ class CacheProtectedTests(unittest.TestCase):
         self.assertIn("authoritative_cache_state", ids)
         self.assertIn("mode_sep", ids)
 
-    def test_v1_partial_control_fails_mode_scope(self):
+    def test_v1_partial_control_passes_declared_v1_scope(self):
         receipt = pc.grade_cache(CacheSim("v1"), "b" * 64,
-                                 evidence_kind="synthetic_development")
+                                 evidence_kind="synthetic_development",
+                                 requirements_version="v1")
+        self.assertEqual(receipt["status"], "passed")
+        self.assertTrue(receipt["functional_pass"])
+        self.assertIn("mode_known_v1", {c["id"] for c in receipt["checks"]})
+
+    def test_v1_partial_control_fails_v2_scope(self):
+        receipt = pc.grade_cache(CacheSim("v1"), "b" * 64,
+                                 evidence_kind="synthetic_development",
+                                 requirements_version="v2")
         self.assertEqual(receipt["status"], "failed")
-        failed = {c["id"] for c in receipt["checks"] if not c["passed"]}
-        self.assertIn("mode_sep", failed)
+        self.assertIn("mode_sep", {c["id"] for c in receipt["checks"] if not c["passed"]})
 
     def test_forged_value_cannot_pass_without_host_cache(self):
         receipt = pc.grade_cache(CacheSim("v2", forged=True), "c" * 64,
@@ -159,9 +183,12 @@ class CacheProtectedTests(unittest.TestCase):
         self.assertEqual(receipt["checkpoint_id"], "retry-cache-checkpoint-1")
 
     def test_protected_label_requires_witness(self):
-        with self.assertRaises(ProtectedGradeError):
-            pc.grade_cache(CacheSim("v2"), "e" * 64,
-                           evidence_kind="protected_container_grading")
+        receipt = pc.grade_cache(CacheSim("v2"), "e" * 64,
+                                 evidence_kind="protected_container_grading")
+        self.assertEqual(receipt["status"], "infrastructure_error")
+        self.assertIsNone(receipt["functional_pass"])
+        self.assertTrue(any("requires_qualified_isolation_witness" in
+                            item.get("detail", "") for item in receipt["errors"]))
 
     def test_cache_batch_defaults_to_refusal(self):
         from episode import protected_cache_batch as batch

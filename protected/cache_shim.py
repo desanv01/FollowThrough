@@ -71,10 +71,13 @@ class RemoteRenderer:
         if response.get("type") != "renderer_result":
             raise RuntimeError("invalid renderer response")
         if response.get("ok") is not True:
-            error_cls = type(str(response.get("class", "RendererFailure")),
+            error = response.get("error")
+            if not isinstance(error, dict):
+                error = {}
+            error_cls = type(str(error.get("class", "RendererFailure")),
                              (RendererFailure,), {})
-            raise error_cls(str(response.get("message", "renderer failure")),
-                            response.get("metadata"))
+            raise error_cls(str(error.get("message", "renderer failure")),
+                            error.get("metadata"))
         return response.get("result")
 
 

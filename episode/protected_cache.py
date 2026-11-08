@@ -61,9 +61,11 @@ class CacheHost:
                       key=lambda item: item[0])
 
     def _normalize(self, key):
-        if type(key) is not list:
-            raise ProtectedGradeError("invalid_cache_key")
-        return tuple(key)
+        if type(key) is list:
+            return tuple(key)
+        if type(key) in (str, int, float, bool) or key is None:
+            return ("scalar", key)
+        raise ProtectedGradeError("invalid_cache_key")
 
     def handle_cache(self, op, args):
         self.cache_ops += 1

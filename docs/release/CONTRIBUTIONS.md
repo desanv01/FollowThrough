@@ -15,7 +15,7 @@ Update with accepted source identities and actual checks. Human must review task
 
 ## Preparation status — 7 November 2026
 
-This ledger was extended for release preparation against frozen baseline `166a304b32d92f66519b8b4074fee510cbffdaeb`; the rows above are the pinned original bytes and retain their attribution. Later work is recorded below only as **delivered but unaccepted**. `COMPLETE`/`COMPLETE_STOPPED` describes a worker stopping at a finite boundary; it does **not** mean integrated, independently accepted or shipped. No commits, professional biographies, licence selection or third-party grants are asserted.
+This ledger was extended for release preparation against frozen baseline `166a304b32d92f66519b8b4074fee510cbffdaeb`; the rows above are the pinned original bytes and retain their attribution. Later work is recorded below only as **delivered but unaccepted**. `COMPLETE`/`COMPLETE_STOPPED` describes a worker stopping at a finite boundary; it does **not** mean integrated, independently accepted or shipped. No commits, professional biographies or third-party grants are asserted.
 
 | Date | Workstream | Contribution | Pinned status |
 |---|---|---|---|

@@ -72,7 +72,7 @@ The frozen method ([METHODS.md](METHODS.md), “Data freeze and reporting”) se
 | Budget work delivered but not accepted | P3-BUDGET/r3 correction delivered, reviewed and accepted |
 | No executor, role loop or frozen campaign | Integrated executor, frozen scenarios/prompts/settings and a separately authorised campaign |
 | No formal results or reporting | Protected grading, all attempt dispositions, sanitised results and Main acceptance of claims |
-| No CI, licence, video or submission package | Later P6 CI assignment; licence decision; recorded ≤5-minute video; eligibility/rules recheck; authorised submission |
+| No video or submission package | Licence is AGPL-3.0-only; recorded ≤5-minute video; eligibility/rules recheck; authorised submission |
 | Six related configurations only | A broader, separately designed study — not implied by this release |
 
 Nothing in this document grants permission to run paid evaluation, publish, upload or submit. Those remain Main/user decisions under the project controls.

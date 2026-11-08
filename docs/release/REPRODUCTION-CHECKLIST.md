@@ -155,7 +155,7 @@ Bounds to expect: default timeout 60 seconds (1–3600 accepted), each stdout/st
 1. Confirm the exact commit and package tree; for a release archive, verify it against the archive's **own frozen SHA-256 manifest**, not the baseline blob table above. Run the trusted commands only if the operator intends to reproduce them, and retain their output separately from formal-result claims.
 2. Confirm no `.env.local`, `.coordination/`, raw provider traces, credential stores, private conversations, `runs/` artifacts or `tmp/` content are included. `.env.local` is the designated credential source and is ignored by Git; it must not be read into logs or copied.
 3. Confirm README links and documentation links resolve, and that untracked preparation drafts (including the release-preparation baseline and the proposed release documents) are either deliberately added or not linked.
-4. Confirm licence status is still described as pending unless Main has made and recorded a decision. No third-party assets or code should appear.
+4. Confirm licence status is recorded as AGPL-3.0-only in `LICENSE`/`NOTICE` unless Main records a later decision. No unlicensed third-party assets or code should appear.
 5. Confirm CI status is described as unconfigured until the later sequential P6 CI assignment lands. Do not claim CI has run.
 6. Confirm no statement calls the host controls a sandbox or presents fixture results as model, provider or campaign results.
 
@@ -182,7 +182,7 @@ The following are **not runnable instructions** and no future command is invente
 | Formal results, sanitised traces and dispositions | None exist |
 | Video recording, captions and URL | None exist |
 | Release archive identity | None yet; verify against the archive's own frozen manifest |
-| Licence selection and attribution approval | Pending; no licence asserted |
+| Licence selection and attribution approval | AGPL-3.0-only (`LICENSE`/`NOTICE`); third-party terms retained |
 | Official rules, deadline, ZIP/video limits | Historical only; must be rechecked |
 | CI workflow and evidence | Later sequential P6 assignment; none configured |
 | Submission receipt/confirmation | None; no submission performed |

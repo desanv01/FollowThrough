@@ -10,7 +10,9 @@ See [project plan](docs/project/PLAN.md), [acceptance gates](docs/project/ACCEPT
 
 ## Current scope
 
-The foundation contains authored repair fixtures, independent Python functional graders, a Rust controller for trusted retry controls, and an offline-tested DeepSeek protocol adapter. Scenario orchestration, protected execution of model-generated code, cumulative budget enforcement and the live evaluation campaign remain in development. The Rust controller currently supports the retry family; the cache grader runs directly.
+The accepted source contains authored repair fixtures, independent Python functional graders, a Rust controller for trusted retry controls, six reproducible scenario packages, a source-only container planner, and an offline-tested DeepSeek adapter with credential loading and a cumulative reservation ledger. Actual container execution, protected grading, the evaluated-role loop and the live campaign remain unaccepted. The trusted Rust controller supports the retry family; the cache grader runs directly.
+
+The [scenario guide](docs/project/SCENARIOS.md) describes package preparation. Preparation does not execute the controller's scheduled events or establish an agent result. The [isolation planner](docs/project/ISOLATION-PLAN.md) emits a plan; it has not qualified an execution sandbox. Release checklists and the demo outline are dated preparation documents, not completed release artifacts.
 
 These local controls demonstrate checker behavior. They are not model benchmark scores, proof of workflow completion, or an execution sandbox. Do not run untrusted candidate code through the current host-based commands.
 
@@ -43,6 +45,6 @@ On Windows, the executable has an `.exe` suffix. See the [runner guide](runner/R
 
 ## Provider and experiment status
 
-The [DeepSeek adapter](adapters/README.md) has offline transport tests. Its per-request reservation is conditional on documented pricing/token assumptions; it does not yet implement a cumulative campaign budget. Project `.env.local` loading and the aggregate US$20 ceiling must be implemented and reviewed before the live campaign. Never commit credentials or expose them to evaluated task workspaces.
+The [DeepSeek adapter](adapters/README.md), project `.env.local` loader and cumulative reservation ledger have passed independent offline source review. The [provider-access guide](docs/project/PROVIDER-ACCESS.md) describes their behavior and restrictions. The local US$20 authorization envelope depends on the documented pricing/token assumptions and is not a provider-billing guarantee. No live provider call or billing validation has been performed. Live dispatch still requires a verified access path, accepted episode bridges and qualified execution. Never commit credentials or expose them to evaluated task workspaces.
 
 See [methods](docs/research/METHODS.md), [execution board](docs/project/EXECUTION-BOARD.md), [hybrid development workflow](docs/project/HYBRID-WORKFLOW.md) and [contributions](docs/release/CONTRIBUTIONS.md). Private coordination and raw run artifacts are excluded from the repository. License selection is pending; no open-source license grant is asserted yet.

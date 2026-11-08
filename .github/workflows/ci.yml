@@ -73,6 +73,12 @@ jobs:
           python -B -m unittest discover -s tests -v
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      - name: Run independent analysis and receipt tests
+        shell: pwsh
+        run: |
+          python -B -m unittest discover -s p5/tests -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Run retry grader self-test
         shell: pwsh
         run: |

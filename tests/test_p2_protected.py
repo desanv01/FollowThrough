@@ -400,8 +400,9 @@ class ProtectedGradeTests(unittest.TestCase):
         broken = copy.deepcopy(facts)
         for mount in broken["Mounts"]:
             source = mount["Source"].replace("\\", "/")
-            drive, rest = source.split(":/", 1)
-            mount["Source"] = "/host_mnt/" + drive.lower() + "/" + rest
+            if source[1:3] == ":/":
+                drive, rest = source.split(":/", 1)
+                mount["Source"] = "/host_mnt/" + drive.lower() + "/" + rest
         self.assertTrue(session._witness_ok(broken))
 
     def test_retry_batch_defaults_to_refusal_without_execute(self):

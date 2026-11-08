@@ -402,16 +402,40 @@ def build_attempt_receipt(operation, *, result=None, usage=None,
         if isinstance(value, bool):
             absent = value if absent is None else (absent and value)
     attempted = bool(operation_ids) or bool(usage.get("calls"))
-    if result and grade:
+    raw_result = result.get("result") if isinstance(result.get("result"), dict) else {}
+    status = (
+        row.get("status") if isinstance(row.get("status"), str)
+        else raw_result.get("status") if isinstance(raw_result.get("status"), str)
+        else result.get("status") if isinstance(result.get("status"), str)
+        else None
+    )
+    stop = stop_status
+    if not isinstance(stop, str):
+        for stop_candidate in (
+            raw_result.get("stop_reason"), row.get("stop_reason"),
+            result.get("stop_reason"),
+        ):
+            if isinstance(stop_candidate, str) and stop_candidate:
+                stop = stop_candidate
+                break
+    stop_text = (stop or "").lower()
+    provider_stop = (
+        status == "provider_error"
+        or "provider" in stop_text
+        or any(token in stop_text for token in ("transport", "http", "rate_limit", "rate limit"))
+    )
+    if status in ("infrastructure_error", "provider_error", "invalid", "limit_reached"):
+        classification = "provider" if provider_stop else "infrastructure"
+    elif result and grade:
         classification = "model"
-    elif isinstance(stop_status, str) and any(
-        token in stop_status.lower()
-        for token in ("provider", "transport", "timeout", "http", "rate")
-    ):
+    elif provider_stop:
         classification = "provider"
     else:
         classification = "infrastructure"
-    unknown = (not cleanup_settled) or not bool(grade) or bool(stop_status)
+    unknown = (
+        (not cleanup_settled) or not bool(grade) or bool(stop)
+        or status not in ("completed", "partial", "completed_claim")
+    )
     dims = None
     outcomes = row.get("outcomes") if isinstance(row.get("outcomes"), dict) else None
     if (
@@ -472,7 +496,7 @@ def build_attempt_receipt(operation, *, result=None, usage=None,
         "requirements_version": requirements if requirements in ("v1", "v2") else None,
         "dispatch": {
             "attempted": attempted,
-            "stop_status": stop_status if isinstance(stop_status, str) else None,
+            "stop_status": stop if isinstance(stop, str) else None,
             "classification": classification if attempted else None,
             "outcome_unknown": bool(unknown),
         },

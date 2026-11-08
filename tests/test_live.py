@@ -775,6 +775,51 @@ class LiveCompositionTest(unittest.TestCase):
             "checkpoint_id": None,
         }
 
+    def test_infrastructure_stop_preserves_independent_grade_and_ledger(self):
+        run_root = self.root / "receipt-infrastructure"
+        run_root.mkdir()
+        result = {
+            "candidate_sha256": SHA,
+            "binding": {"candidate_sha256": SHA, "requirements_version": "v1"},
+            "row": {
+                "status": "infrastructure_error",
+                "resources": {"model_responses": 7, "tool_actions": 6,
+                              "input_tokens": 22838, "output_tokens": 1822,
+                              "elapsed_ms": 16516},
+                "outcomes": {"functional": "pass", "workflow": "unknown",
+                             "evidence": "unknown", "completion": "unknown"},
+            },
+            "result": {"status": "infrastructure_error",
+                       "stop_reason": "check_invalid_receipt"},
+            "grade": {"candidate_sha256": SHA, "requirements_version": "v1",
+                      "evidence_kind": "protected_container_grading",
+                      "functional_pass": True, "cleanup": "settled"},
+        }
+        snapshot = {
+            "remaining_microdollars": 19_914_246,
+            "operations": [{
+                "operation_id": "ep-receipt:call:1",
+                "amount_microdollars": 85_754,
+                "estimated_cost_microdollars": 5_052,
+                "status": "success",
+            }],
+        }
+        receipt = build_attempt_receipt(
+            self._receipt_operation(), result=result,
+            usage={"calls": 7, "elapsed_seconds": 19.969},
+            ledger_snapshot=snapshot,
+            check_receipts=[{"cleanup": "settled"}], run_root=run_root,
+        )
+        validation = validate_receipt(receipt)
+        self.assertTrue(validation["valid"], validation["errors"])
+        self.assertEqual(receipt["dispatch"]["classification"], "infrastructure")
+        self.assertEqual(receipt["dispatch"]["stop_status"], "check_invalid_receipt")
+        self.assertTrue(receipt["dispatch"]["outcome_unknown"])
+        self.assertTrue(receipt["grade"]["functional_pass"])
+        self.assertEqual(receipt["cleanup"]["readback"], "settled")
+        self.assertTrue(validation["ledger_ready"])
+        self.assertTrue(validation["report_ready"])
+
     def test_attempt_receipt_success_is_structurally_and_ledger_ready(self):
         run_root = self.root / "receipt-success"
         run_root.mkdir()

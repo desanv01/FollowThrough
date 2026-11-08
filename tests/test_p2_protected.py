@@ -429,6 +429,15 @@ class ProtectedGradeTests(unittest.TestCase):
                 SimulatedSession("correct"), "e" * 64,
                 evidence_kind="protected_container_grading")
 
+    def test_retry_checkpoint_receipt_binds_id(self):
+        receipt = ps.grade_session(
+            SimulatedSession("correct"), "f" * 64,
+            evidence_kind="synthetic_development",
+            checkpoint_id="retry-checkpoint-1")
+        self.assertEqual(receipt["status"], "passed")
+        self.assertEqual(receipt["grade_kind"], "checkpoint")
+        self.assertEqual(receipt["checkpoint_id"], "retry-checkpoint-1")
+
     def test_host_session_correct_control_passes(self):
         receipt = ps.grade_session(
             SimulatedSession("correct"), "a" * 64,

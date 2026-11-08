@@ -291,6 +291,82 @@ def project_episode(
     return row, binding
 
 
+def project_unscored_episode(result, events, *, source, evidence_kind, stage,
+                             trial=1, operation=None, reason):
+    """Project an episode with no protected grade (e.g. unknown cleanup).
+
+    The row is excluded as ``infrastructure_error`` with all dimensions unknown;
+    it never invents a grade or converts an infrastructure stop into a score.
+    """
+    if not isinstance(result, dict):
+        raise ProjectionError("invalid_result")
+    if evidence_kind not in EVIDENCE_KINDS or stage not in STAGES:
+        raise ProjectionError("invalid_provenance")
+    if evidence_kind == "synthetic_development" and stage != "development":
+        raise ProjectionError("invalid_provenance")
+    if not isinstance(events, list):
+        raise ProjectionError("invalid_events")
+    episode_id = _identifier(result.get("episode_id"), "invalid_episode_id")
+    scenario_id = result.get("scenario_id")
+    if scenario_id not in SCENARIOS:
+        raise ProjectionError("invalid_scenario")
+    arm = result.get("arm")
+    if arm not in ARMS:
+        raise ProjectionError("invalid_arm")
+    source = source if isinstance(source, dict) else {}
+    operation = operation if isinstance(operation, dict) else {}
+    counts = result.get("counts") if isinstance(result.get("counts"), dict) else {}
+    if result.get("elapsed_ms") is not None:
+        elapsed_ms = _safe_int(result.get("elapsed_ms"))
+    elif operation.get("elapsed_ms") is not None:
+        elapsed_ms = _safe_int(operation.get("elapsed_ms"))
+    elif events:
+        elapsed_ms = _safe_int(events[-1].get("elapsed_ms"))
+    else:
+        elapsed_ms = None
+    binding = {
+        "schema_version": BINDING_SCHEMA,
+        "episode_id": result.get("episode_id"),
+        "run_id": operation.get("run_id") if isinstance(operation.get("run_id"), str) else None,
+        "operation_id": operation.get("operation_id")
+        if isinstance(operation.get("operation_id"), str) else None,
+        "candidate_sha256": source.get("candidate_sha256"),
+        "current_candidate_sha256": result.get("current_candidate_sha256"),
+        "requirements_version": source.get("requirements_version"),
+        "current_requirements_version": result.get("current_requirements_version"),
+        "grade_candidate_sha256": None,
+        "grade_requirements_version": None,
+        "binding_match": False,
+        "grade_skipped_reason": _text(reason, 128),
+    }
+    row = {
+        "episode_id": episode_id,
+        "scenario_id": scenario_id,
+        "arm": arm,
+        "trial": _safe_int(trial, allow_none=False),
+        "stage": stage,
+        "evidence_kind": evidence_kind,
+        "status": "infrastructure_error",
+        "outcomes": {
+            "functional": outcomes.UNKNOWN,
+            "workflow": outcomes.UNKNOWN,
+            "evidence": outcomes.UNKNOWN,
+            "completion": outcomes.UNKNOWN,
+        },
+        "resources": {
+            "model_responses": _safe_int(counts.get("model_responses_total")),
+            "tool_actions": _safe_int(counts.get("executed_actions")),
+            "input_tokens": _usage_sum(result, "input_tokens"),
+            "output_tokens": _usage_sum(result, "output_tokens"),
+            "elapsed_ms": elapsed_ms,
+            "estimated_cost_micro_usd": _safe_int(operation.get("estimated_cost_micro_usd")),
+            "reserved_micro_usd": _safe_int(operation.get("reserved_micro_usd")),
+        },
+        "trace": _trace_from_events(events),
+    }
+    return row, binding
+
+
 def project_report_input(dataset_id, episodes):
     """Wrap projected rows in the exact report-input-0.1 envelope."""
     return {
@@ -306,5 +382,5 @@ def row_digest(row):
 
 __all__ = [
     "BINDING_SCHEMA", "ProjectionError", "project_episode",
-    "project_report_input", "row_digest",
+    "project_report_input", "project_unscored_episode", "row_digest",
 ]

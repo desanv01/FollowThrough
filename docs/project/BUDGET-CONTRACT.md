@@ -1,0 +1,39 @@
+# Provider access and budget contract v0.1
+
+Main-owned finite implementation contract for P3-BUDGET/r1. Python stdlib only; official DeepSeek adapter at accepted commit 166a304b32d92f66519b8b4074fee510cbffdaeb remains unchanged. This assignment implements and tests offline; no real credential access or provider requests.
+
+## Credential loader
+
+`load_deepseek_key(project_root, *, environ=None) -> str` in adapters/credentials.py. Explicit project root; never search parent directories or use cwd implicitly. When environ is None use process os.environ; an injected mapping supports synthetic tests.
+
+If DEEPSEEK_API_KEY exists in the chosen environment, validate and use it. An empty/invalid supplied entry fails; do not silently fall back. Otherwise read only project_root/.env.local. Maximum 16 KiB, UTF-8 (optional BOM). Parse a small documented literal subset: blank lines and full-line # comments ignored; other lines are NAME=VALUE with optional whitespace around NAME and VALUE. Accept unquoted or matching single/double quoted values, without escape processing, interpolation, command execution or inline comments. Ignore well-formed unrelated assignments. Reject malformed non-comment lines and duplicate target assignments. Only DEEPSEEK_API_KEY is returned; file values never mutate os.environ. Missing/empty target, decoding/read errors and overlarge files fail with fixed diagnostic codes; never echo raw lines, file contents or OS error strings.
+
+Key validation matches existing adapter: nonempty str, <=4096 characters, every character ASCII 33..126. Quotes delimit syntax and are removed; spaces inside a quoted key still invalidate it. No secret in automatic client/receipt repr, exceptions, stdout, stderr, SQLite, reports or test-failure diagnostics. The loader intentionally returns a secret string to its trusted caller; callers must not print it. This is application-level redaction, not secure-memory erasure or protection from a debugger. The real project .env.local is read only by later authorized runtime, never by this worker.
+
+## Durable reservation ledger
+
+`CampaignLedger(project_root, *, campaign_id, cap_usd="20")` in adapters/budget.py. The only runtime ledger location is project_root/.coordination/provider-budget.sqlite3; tests use a synthetic project root entirely inside owned scratch. New ledger initializes one campaign and immutable cap. Reopen requires the same campaign ID and normalized cap; refuse mismatch, unknown schema or corruption. No reset, alternate-ledger override, release or budget-increase API. Main must use the same project root across evaluated roles. Do not claim enforcement across user-created alternate projects or raw client calls.
+
+Amounts accept only Decimal or decimal strings, not floats/bools. Require finite positive values. Cap <=20 USD; convert cap down to integer microdollars and requests up to microdollars using decimal arithmetic, reject normalized zero or over-cap values. Store integer amounts, not binary floating point. Bound numeric inputs before arithmetic so huge digit/exponent input fails predictably. Campaign and operation IDs are nonempty strings <=128 ASCII characters from A-Z/a-z/0-9/._:-, contain no prompt or secret data.
+
+`reserve(operation_id, amount_usd)` atomically inserts a new pending operation only if existing committed reservations plus the new rounded amount <=cap. Use SQLite transactions/uniqueness, not check-then-insert across separate transactions. Duplicate IDs always fail before dispatch, including after restart, success or failure. Busy/locked/unreadable/corrupt DB means no dispatch; never silently replace it. Commit pending reservation before handing off to transport; do not hold a DB transaction open during a request. Use finite SQLite lock timeouts.
+
+`finish(operation_id, outcome, *, estimated_cost_usd=None)` finalizes a pending operation with a fixed allowlisted outcome (success, provider_error, uncertain, internal_error) and optional finite nonnegative estimated cost. Never reduce reserved funds or automatically retry. Unknown operation or conflicting/double finish fails closed. Reporting an estimate never converts it into billed/settled cost. Reserve the whole per-call max_cost_usd envelope permanently for this initial campaign, even for an early failure: conservative under-utilization is intentional and must be documented.
+
+`snapshot()` returns JSON-compatible metadata: schema/campaign/cap, total reserved, remaining allowance, operation IDs/reserved amounts/statuses, and optional estimates, with exact integer microdollars (decimal display strings allowed too). It contains no messages, raw responses, credentials or reasoning. A crash after reservation leaves a visible pending reservation consuming the allowance. If final receipt persistence fails after dispatch, retain reservation/pending state, report a fixed failure code with attempted/unknown outcome, and do not retry or infer zero charge.
+
+The cap constrains local committed authorization envelopes. Real billing is still conditional on the existing adapter's reservation/token/pricing assumptions. It cannot guarantee provider billing or replace external account spending limits.
+
+## Guarded adapter composition
+
+`BudgetedDeepSeekClient(project_root, *, campaign_id, cap_usd="20", environ=None, transport=None)` in adapters/budgeted_deepseek.py composes the loader, ledger and unchanged DeepSeekClient. `complete(operation_id, messages, *, max_cost_usd, tools=None, max_tokens=64, timeout_seconds=15, max_response_bytes=131072, dispatch=False)` requires dispatch is exactly True before any request or reservation. Defaults deny dispatch, including with injected transport.
+
+Reserve the full supplied per-call max_cost_usd envelope (not an independently recomputed estimate), then call the accepted client's complete once with that envelope and unchanged request arguments. Existing adapter refuses requests whose computed reservation exceeds the supplied envelope. No private pricing-function imports or duplicate request serializer. Do not retry on any failure or repeated operation ID. Return the normal Completion on success only after durable success recording. Record normalized estimated usage cost when available, otherwise null; never persist raw usage or response bodies. Expose a safe ledger snapshot method/property for main.
+
+Preserve known HTTP status and fixed adapter code in sanitized errors. outcome_unknown maps to uncertain; known DeepSeek errors map to provider_error. Unexpected local exceptions and finalization failure use fixed codes, no raw cause/traceback text in public output. If dispatch may have happened, do not claim otherwise. Original low-level adapter CLI remains unchanged; documentation must explicitly require the new wrapper for future budgeted campaign calls. This packet does not wire the agent loop or authorize a live readiness call.
+
+## Required evidence
+
+Synthetic credentials and injected fake transport only. Test loader precedence, strict malformed/duplicate/invalid cases and diagnostics; ledger exact boundary/rounding/reopen/mismatch/corruption/duplicate/recovery and two competing independent SQLite connections/processes; complete path through the real adapter with fake HTTP response; early refusal without transport; one-attempt behavior; success/unknown usage/timeout/5xx handling; final-write failure after transport with retained reservation; and secret absence in logs/errors/SQLite bytes. Verify fixtures use unmistakable synthetic values and error assertions never print them.
+
+A race test must actually overlap two reservation attempts at a cap that admits only one, and demonstrate no overcommit. Claim process-crash testing only if a process was actually interrupted; a reopened pending record is restart-state evidence. Keep tests meaningful and finite. No arbitrary filesystem attack-resistance or sandbox claim.

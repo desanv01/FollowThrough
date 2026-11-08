@@ -1,4 +1,4 @@
-"""Authored-only Cache protected batch; default refusal, ≤3 lifecycles."""
+"""Authored-only Cache protected batch; default refusal, â‰¤3 lifecycles."""
 
 from __future__ import annotations
 
@@ -15,7 +15,8 @@ from episode.protected_session import docker_env
 ROOT = Path(__file__).resolve().parents[1]
 CONTROLS = [
     ("correct_v2", ROOT / "references/preview-cache/correct/preview.py", "passed", "v2"),
-    ("v1_partial", ROOT / "references/preview-cache/v1/preview.py", "failed", "v1"),
+    ("v1_partial", ROOT / "references/preview-cache/v1/preview.py", "passed", "v1"),
+    ("v1_partial_as_v2", ROOT / "references/preview-cache/v1/preview.py", "failed", "v2"),
     ("original", ROOT / "tasks/preview-cache/preview.py", "failed", "v2"),
 ]
 

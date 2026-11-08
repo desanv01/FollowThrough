@@ -234,6 +234,7 @@ class DockerSession(Session):
         self._frames = 0
         self._max_frames = 128
         self._received_bytes = 0
+        self._reader_error = None
 
     def _run(self, argv, timeout=10, input_bytes=None):
         try:
@@ -281,14 +282,31 @@ class DockerSession(Session):
             errors="replace", bufsize=1, env=docker_env(),
         )
         self.proc = start
-        self.queue = queue.Queue()
+        self.queue = queue.Queue(maxsize=128)
 
         def reader():
             try:
-                for line in start.stdout:
-                    self.queue.put(line)
+                while True:
+                    line = start.stdout.readline(65537)
+                    if not line:
+                        return
+                    if len(line) > 65536 or not line.endswith("\n"):
+                        self._reader_error = "candidate_frame_too_large"
+                        start.kill()
+                        return
+                    self._received_bytes += len(line.encode("utf-8", errors="replace"))
+                    if self._received_bytes > 1024 * 1024:
+                        self._reader_error = "candidate_output_limit"
+                        start.kill()
+                        return
+                    try:
+                        self.queue.put_nowait(line)
+                    except queue.Full:
+                        self._reader_error = "candidate_frame_limit"
+                        start.kill()
+                        return
             except Exception:
-                pass
+                self._reader_error = "candidate_reader_failed"
 
         threading.Thread(target=reader, daemon=True).start()
         self.witness = {
@@ -304,6 +322,9 @@ class DockerSession(Session):
             "memory": facts["HostConfig"]["Memory"],
             "nano_cpus": facts["HostConfig"]["NanoCpus"],
         }
+
+    def isolation_witness(self):
+        return self.witness
 
     def _witness_ok(self, facts):
         try:
@@ -376,13 +397,14 @@ class DockerSession(Session):
             raise ProtectedGradeError("candidate_frame_limit")
         try:
             line = self.queue.get(timeout=timeout)
+            if self._reader_error:
+                raise ProtectedGradeError(self._reader_error)
         except queue.Empty:
+            if self._reader_error:
+                raise ProtectedGradeError(self._reader_error) from None
             raise ProtectedGradeError("candidate_session_timeout") from None
         if len(line) > 65536:
             raise ProtectedGradeError("candidate_frame_too_large")
-        self._received_bytes += len(line.encode("utf-8", errors="replace"))
-        if self._received_bytes > 1024 * 1024:
-            raise ProtectedGradeError("candidate_output_limit")
         try:
             frame = json.loads(line)
         except json.JSONDecodeError:
@@ -413,7 +435,8 @@ class DockerSession(Session):
         else:
             listed = self._run([self.docker, "ps", "-a", "--quiet", "--filter",
                                 "name=^/?" + self.name + "$"])
-        if removed.returncode == 0 and listed.returncode == 0 and not listed.stdout.strip():
+        if (removed.returncode == 0 and listed.returncode == 0
+                and not listed.stdout.strip() and not self._reader_error):
             self.cleanup = "settled"
         else:
             self.cleanup = "unknown"
@@ -484,11 +507,7 @@ def _validate_result(frame, index, kind):
 def grade_session(session, candidate_sha256, *, evidence_kind, cleanup="settled",
                   checkpoint_id=None, requirements_version="v1"):
     """Drive one host-owned session and adjudicate. Candidate cannot supply DB state."""
-    if evidence_kind == "protected_container_grading":
-        witness = session.isolation_witness() if session.qualified else None
-        if not witness or witness.get("verified") is not True:
-            raise ProtectedGradeError("requires_qualified_isolation_witness")
-    elif evidence_kind != "synthetic_development":
+    if evidence_kind not in ("protected_container_grading", "synthetic_development"):
         raise ProtectedGradeError("invalid_evidence_kind")
     work = Path(tempfile.gettempdir()) / ("protected-session-" + uuid.uuid4().hex)
     work.mkdir()
@@ -498,6 +517,10 @@ def grade_session(session, candidate_sha256, *, evidence_kind, cleanup="settled"
     errors = []
     try:
         session.start()
+        if evidence_kind == "protected_container_grading":
+            witness = session.isolation_witness() if session.qualified else None
+            if not witness or witness.get("verified") is not True:
+                raise ProtectedGradeError("requires_qualified_isolation_witness")
         for index, operation in enumerate(OPERATIONS):
             if index == 7:
                 store.reopen()  # reopen semantics: durable state must survive
@@ -507,9 +530,10 @@ def grade_session(session, candidate_sha256, *, evidence_kind, cleanup="settled"
             result = None
             deadline = time.monotonic() + 30
             while result is None:
-                if time.monotonic() > deadline or time.monotonic() > total_deadline:
+                remaining = min(deadline, total_deadline) - time.monotonic()
+                if remaining <= 0:
                     raise ProtectedGradeError("candidate_session_timeout")
-                frame = session.receive(max(0.1, deadline - time.monotonic()))
+                frame = session.receive(min(30.0, remaining))
                 if frame.get("type") == "store":
                     if frame.get("index") != index:
                         raise ProtectedGradeError("store_index_mismatch")
@@ -528,6 +552,8 @@ def grade_session(session, candidate_sha256, *, evidence_kind, cleanup="settled"
                     if frame.get("index") != index or frame.get("kind") != operation["kind"]:
                         continue  # unsolicited/forged frame is ignored
                     result = _validate_result(frame, index, operation["kind"])
+                    if getattr(session, "_reader_error", None):
+                        raise ProtectedGradeError(session._reader_error)
                     continue
                 # Unknown/forged frame: ignored, never accepted as authority.
             observed = store.snapshot()
@@ -550,14 +576,25 @@ def grade_session(session, candidate_sha256, *, evidence_kind, cleanup="settled"
                 check["passed"] = True
                 check["detail"] = "expected host state"
             checks.append(check)
+        if getattr(session, "_reader_error", None):
+            raise ProtectedGradeError(session._reader_error)
     finally:
         try:
             session.close()
         finally:
             cleanup = getattr(session, "cleanup", cleanup)
             store.close()
-    status = "passed" if all(c["passed"] for c in checks) and not errors else (
-        "candidate_error" if errors else "failed")
+    if getattr(session, "_reader_error", None):
+        errors.append({"origin": "executor", "phase": "output",
+                       "type": "OutputLimit", "detail": session._reader_error})
+    if cleanup == "unknown" and all(c["passed"] for c in checks) and not errors:
+        errors.append({"origin": "executor", "phase": "cleanup",
+                       "type": "CleanupUnknown",
+                       "detail": "cleanup unknown forbids semantic outcome"})
+    status = "infrastructure_error" if (cleanup == "unknown" or any(
+        e.get("type") in ("OutputLimit", "CleanupUnknown") for e in errors)) else (
+        "passed" if all(c["passed"] for c in checks) and not errors else (
+            "candidate_error" if errors else "failed"))
     receipt = {
         "schema_version": PROTECTED_SCHEMA,
         "task_family": "retry-processing",

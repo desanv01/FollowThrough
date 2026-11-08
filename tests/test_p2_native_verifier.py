@@ -1,4 +1,4 @@
-﻿"""Synthetic regressions for the native receipt verifier normalization."""
+"""Synthetic regressions for the native receipt verifier normalization."""
 
 from __future__ import annotations
 
@@ -91,23 +91,48 @@ class ReceiptVerifierTests(unittest.TestCase):
         self.assertTrue(any("removal" in failure for failure in failures))
         self.assertTrue(any("public check did not fail" in failure for failure in failures))
 
+    def test_public_flat_cleanup_without_object_is_rejected(self):
+        self.retry_fixture()
+        self.write(self.retry, "failing_public.receipt.json", {
+            "status": "check_failed", "cleanup": "settled",
+            "removal_verified": True, "public_check_exit": 1, "process_exit": 1})
+        failures, _ = self.tool.verify_retry(self.retry)
+        self.assertTrue(any("object cleanup" in failure for failure in failures))
+
     def test_cache_v1_control_requires_v1_binding_and_failure(self):
         fixtures = {
             "correct_v2.receipt.json": ("passed", "v2"),
-            "v1_partial.receipt.json": ("failed", "v1"),
+            "v1_partial.receipt.json": ("passed", "v1"),
+            "v1_partial_as_v2.receipt.json": ("failed", "v2"),
             "original.receipt.json": ("failed", "v2"),
         }
         for name, (status, version) in fixtures.items():
             self.write(self.cache, name, {"status": status, "cleanup": "settled",
                                           "requirements_version": version,
+                                          "candidate_sha256": "c" * 64,
                                           "isolation": witness()})
         failures, _ = self.tool.verify_cache(self.cache)
         self.assertEqual(failures, [])
         self.write(self.cache, "v1_partial.receipt.json", {
             "status": "failed", "cleanup": "settled", "requirements_version": "v2",
-            "isolation": witness()})
+            "candidate_sha256": "c" * 64, "isolation": witness()})
         failures, _ = self.tool.verify_cache(self.cache)
         self.assertTrue(any("v1 control" in failure for failure in failures))
+        self.write(self.cache, "v1_partial_as_v2.receipt.json", {
+            "status": "passed", "cleanup": "settled", "requirements_version": "v2",
+            "candidate_sha256": "c" * 64, "isolation": witness()})
+        failures, _ = self.tool.verify_cache(self.cache)
+        self.assertTrue(any("v1-valid candidate" in failure for failure in failures))
+        v1_path = self.cache / "v1_partial.receipt.json"
+        data = json.loads(v1_path.read_text(encoding="utf-8"))
+        del data["candidate_sha256"]
+        v1_path.write_text(json.dumps(data), encoding="utf-8")
+        failures, _ = self.tool.verify_cache(self.cache)
+        self.assertTrue(any("missing candidate_sha256" in failure for failure in failures))
+        data["candidate_sha256"] = "d" * 64
+        v1_path.write_text(json.dumps(data), encoding="utf-8")
+        failures, _ = self.tool.verify_cache(self.cache)
+        self.assertTrue(any("different candidate_sha256" in failure for failure in failures))
 
 
 if __name__ == "__main__":

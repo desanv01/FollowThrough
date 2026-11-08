@@ -101,7 +101,7 @@ def _public_failure(docker, run_root):
         "--run-id", "batch-public-fail", "--output-dir", str(output),
         "--docker", str(docker), "--execute",
     ], stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-       stderr=subprocess.PIPE, timeout=150, check=False)
+       stderr=subprocess.PIPE, timeout=150, check=False, env=docker_env())
     receipt = {}
     try:
         receipt = json.loads((output / "receipt.json").read_text(encoding="utf-8"))

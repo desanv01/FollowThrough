@@ -418,6 +418,31 @@ class ProtectedGradeTests(unittest.TestCase):
         self.assertEqual(batch.main(["--run-root", str(run_root)]), 2)
         self.assertFalse(run_root.exists())
 
+    def test_reader_overflow_after_a_good_result_cannot_pass(self):
+        class OverflowAfterFinal(SimulatedSession):
+            def receive(self, timeout):
+                frame = super().receive(timeout)
+                if frame.get("type") == "result" and frame.get("index") == 7:
+                    self._reader_error = "candidate_output_limit"
+                return frame
+
+        with self.assertRaises(pg.ProtectedGradeError):
+            ps.grade_session(OverflowAfterFinal("correct"), "a" * 64,
+                             evidence_kind="synthetic_development")
+
+    def test_docker_reader_error_is_authoritative_after_dequeue(self):
+        session = ps.DockerSession("docker", ROOT / "candidate.py",
+                                   ROOT / "protected", "p2-reader")
+        session.queue = queue.Queue()
+        session.queue.put('{"type":"result","index":0,"kind":"event","status":"applied","fault_propagated":false}\n')
+        session._reader_error = "candidate_output_limit"
+        with self.assertRaises(pg.ProtectedGradeError):
+            session.receive(0.1)
+        session._reader_error = None
+        session._received_bytes = 1024 * 1024 - 1
+        session.queue.put('{"type":"result","index":1,"kind":"event","status":"applied","fault_propagated":false}\n')
+        self.assertIsInstance(session.receive(0.1), dict)
+
     def test_docker_session_timeout_and_frame_limit_are_classified(self):
         session = ps.DockerSession("docker", ROOT / "candidate.py", ROOT / "protected", "p2-timeout")
         session.queue = queue.Queue()
@@ -460,6 +485,21 @@ class ProtectedGradeTests(unittest.TestCase):
         self.assertEqual(receipt["status"], "passed")
         self.assertEqual(receipt["grade_kind"], "checkpoint")
         self.assertEqual(receipt["checkpoint_id"], "retry-checkpoint-1")
+
+    def test_qualified_witness_is_checked_after_start(self):
+        class Qualified(SimulatedSession):
+            qualified = True
+
+            def start(self):
+                self.witness = {"verified": True, "id": "a" * 64}
+
+            def isolation_witness(self):
+                return self.witness
+
+        receipt = ps.grade_session(
+            Qualified("correct"), "a" * 64,
+            evidence_kind="protected_container_grading")
+        self.assertEqual(receipt["status"], "passed")
 
     def test_host_session_correct_control_passes(self):
         receipt = ps.grade_session(

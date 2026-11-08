@@ -111,14 +111,16 @@ class CacheHost:
                            "metadata": {"key": key}}
         return True, _value(key, mode)
 
-    def _run_call(self, session, index, args):
+    def _run_call(self, session, index, args, total_deadline=None):
         session.send_frame({"type": "call", "index": index, "args": args})
         deadline = time.monotonic() + 30
         frames = 0
         while True:
-            if time.monotonic() > deadline:
+            limit = deadline if total_deadline is None else min(deadline, total_deadline)
+            remaining = limit - time.monotonic()
+            if remaining <= 0:
                 raise ProtectedGradeError("cache_session_timeout")
-            frame = session.receive(max(0.1, deadline - time.monotonic()))
+            frame = session.receive(min(30.0, remaining))
             frames += 1
             if frames > 128:
                 raise ProtectedGradeError("cache_frame_limit")
@@ -147,6 +149,8 @@ class CacheHost:
                                     "error": None if ok else value})
                 continue
             if frame.get("type") == "result":
+                if getattr(session, "_reader_error", None):
+                    raise ProtectedGradeError(session._reader_error)
                 return frame
             # Unknown/forged frame is ignored, never authority.
         return None
@@ -154,11 +158,7 @@ class CacheHost:
 
 def grade_cache(session, candidate_sha256, *, evidence_kind,
                 requirements_version="v2", checkpoint_id=None, cleanup="settled"):
-    if evidence_kind == "protected_container_grading":
-        witness = session.isolation_witness() if session.qualified else None
-        if not witness or witness.get("verified") is not True:
-            raise ProtectedGradeError("requires_qualified_isolation_witness")
-    elif evidence_kind != "synthetic_development":
+    if evidence_kind not in ("protected_container_grading", "synthetic_development"):
         raise ProtectedGradeError("invalid_evidence_kind")
     host = CacheHost()
     checks = []
@@ -166,6 +166,14 @@ def grade_cache(session, candidate_sha256, *, evidence_kind,
     total_deadline = time.monotonic() + float(getattr(session, "timeout", 30))
     try:
         session.start()
+        if evidence_kind == "protected_container_grading":
+            witness = session.isolation_witness() if session.qualified else None
+            if not witness or witness.get("verified") is not True:
+                raise ProtectedGradeError("requires_qualified_isolation_witness")
+        v1 = requirements_version == "v1"
+        mode_check = ("mode_known_v1" if v1 else "mode_sep")
+        mode_expected = (_value(("Alpha", "report", 1), "full")
+                         if v1 else _value(("Alpha", "report", 1), "compact"))
         cases = [
             ("cold_full", ["Alpha", "report", 1],
              _value(("Alpha", "report", 1), "full"), None),
@@ -179,8 +187,7 @@ def grade_cache(session, candidate_sha256, *, evidence_kind,
              _value(("Alpha", "report", 2), "full"), None),
             ("document_sep", ["Alpha", "notes", 1, "compact"],
              _value(("Alpha", "notes", 1), "compact"), None),
-            ("mode_sep", ["Alpha", "report", 1, "compact"],
-             _value(("Alpha", "report", 1), "compact"), None),
+            (mode_check, ["Alpha", "report", 1, "compact"], mode_expected, None),
             ("second_set", ["Gamma", "memo", 3, "full"],
              _value(("Gamma", "memo", 3), "full"), None),
             ("second_set_revision", ["Gamma", "memo", 4, "full"],
@@ -193,7 +200,7 @@ def grade_cache(session, candidate_sha256, *, evidence_kind,
             if time.monotonic() > total_deadline:
                 raise ProtectedGradeError("cache_total_timeout")
             host.reset_op_counts()
-            frame = host._run_call(session, index, args)
+            frame = host._run_call(session, index, args, total_deadline)
             passed = (frame.get("status") == "ok" and frame.get("value") == expected)
             checks.append({"id": check_id, "passed": passed,
                            "detail": "expected renderer content" if passed
@@ -212,7 +219,7 @@ def grade_cache(session, candidate_sha256, *, evidence_kind,
             if time.monotonic() > total_deadline:
                 raise ProtectedGradeError("cache_total_timeout")
             host.reset_op_counts()
-            frame = host._run_call(session, base + offset, args)
+            frame = host._run_call(session, base + offset, args, total_deadline)
             if frame.get("status") != "exception" or frame.get("class") != expected_error.__name__:
                 invalid_passed = False
             if host.renderer_calls or host.cache_ops:
@@ -221,42 +228,67 @@ def grade_cache(session, candidate_sha256, *, evidence_kind,
                        "detail": "ValueError before any cache/renderer access"})
         fail_index = base + len(invalid_cases)
         host.failures.add(("Beta", "notes", 1))
-        frame = host._run_call(session, fail_index, ["Beta", "notes", 1, "compact"])
+        frame = host._run_call(session, fail_index, ["Beta", "notes", 1, "compact"], total_deadline)
+        failure_key = (("Beta", "notes", 1) if v1 else
+                       ("Beta", "notes", 1, "compact"))
         failure_passed = (frame.get("status") == "exception"
                           and frame.get("class") == "RendererBoom"
-                          and ("Beta", "notes", 1) not in host.cache)
-        retry = host._run_call(session, fail_index + 1, ["Beta", "notes", 1, "compact"])
+                          and failure_key not in host.cache)
+        retry = host._run_call(session, fail_index + 1, ["Beta", "notes", 1, "compact"], total_deadline)
         retry_passed = retry.get("status") == "ok" and retry.get("value") == (
             "TITLE: Notes")
         checks.append({"id": "renderer_failure", "passed": failure_passed,
                        "detail": "renderer exception preserved; no cache write"})
         checks.append({"id": "retry_after_failure", "passed": retry_passed,
                        "detail": "successful retry caches output"})
-        expected_keys = {
-            ("Alpha", "report", 1, "full"),
-            ("Beta", "report", 1, "full"),
-            ("Alpha", "report", 2, "full"),
-            ("Alpha", "notes", 1, "compact"),
-            ("Alpha", "report", 1, "compact"),
-            ("Gamma", "memo", 3, "full"),
-            ("Gamma", "memo", 4, "full"),
-            ("Delta", "memo", 3, "full"),
-            ("Beta", "notes", 1, "compact"),
-        }
+        if v1:
+            expected_keys = {
+                ("Alpha", "report", 1),
+                ("Beta", "report", 1),
+                ("Alpha", "report", 2),
+                ("Alpha", "notes", 1),
+                ("Gamma", "memo", 3),
+                ("Gamma", "memo", 4),
+                ("Delta", "memo", 3),
+                ("Beta", "notes", 1),
+            }
+            expected_calls = 9
+        else:
+            expected_keys = {
+                ("Alpha", "report", 1, "full"),
+                ("Beta", "report", 1, "full"),
+                ("Alpha", "report", 2, "full"),
+                ("Alpha", "notes", 1, "compact"),
+                ("Alpha", "report", 1, "compact"),
+                ("Gamma", "memo", 3, "full"),
+                ("Gamma", "memo", 4, "full"),
+                ("Delta", "memo", 3, "full"),
+                ("Beta", "notes", 1, "compact"),
+            }
+            expected_calls = 10
         checks.append({"id": "authoritative_cache_state",
                        "passed": set(host.cache) == expected_keys,
                        "detail": "host cache state is the only authority"})
         checks.append({"id": "renderer_call_count",
-                       "passed": host.total_renderer_calls == 10,
-                       "detail": f"expected 10 host renderer calls, observed {host.total_renderer_calls}"})
+                       "passed": host.total_renderer_calls == expected_calls,
+                       "detail": f"expected {expected_calls} host renderer calls, observed {host.total_renderer_calls}"})
+        if getattr(session, "_reader_error", None):
+            raise ProtectedGradeError(session._reader_error)
     except ProtectedGradeError as exc:
         errors.append({"origin": "grader", "phase": "cache_session",
                        "type": "InfrastructureError", "detail": exc.code})
     finally:
         session.close()
         cleanup = getattr(session, "cleanup", cleanup)
-    status = "passed" if not errors and all(c["passed"] for c in checks) else (
-        "infrastructure_error" if errors else "failed")
+    if getattr(session, "_reader_error", None):
+        errors.append({"origin": "executor", "phase": "output",
+                       "type": "OutputLimit", "detail": session._reader_error})
+    if cleanup == "unknown" and not errors:
+        errors.append({"origin": "executor", "phase": "cleanup",
+                       "type": "CleanupUnknown",
+                       "detail": "cleanup unknown forbids semantic outcome"})
+    status = "infrastructure_error" if (cleanup == "unknown" or errors) else (
+        "passed" if all(c["passed"] for c in checks) else "failed")
     receipt = {
         "schema_version": SCHEMA,
         "task_family": "preview-cache",

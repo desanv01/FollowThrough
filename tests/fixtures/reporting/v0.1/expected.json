@@ -1,0 +1,177 @@
+{
+  "fixture_notice": "Literal expected output subsets keyed by scenario_id/arm within synthetic_development/development; nested paths match report-output-0.1. Assert values and contract invariants. Not a model result.",
+  "inventory": {
+    "attempted": 8,
+    "evidence_counts": {
+      "synthetic_development": 8,
+      "real_provider": 0
+    },
+    "stage_counts": {
+      "development": 8,
+      "pilot": 0,
+      "formal": 0
+    }
+  },
+  "group_count": 7,
+  "episode_strict_outcomes": {
+    "synthetic-r1-success": "pass",
+    "synthetic-r1-route-fail": "fail",
+    "synthetic-r2-partial": "fail",
+    "synthetic-r3-provider": "not_scored",
+    "synthetic-c1-infra": "not_scored",
+    "synthetic-c2-invalid": "not_scored",
+    "synthetic-c3-unknown": "unknown",
+    "synthetic-c3-success": "pass"
+  },
+  "groups": [
+    {
+      "scenario_id": "C1",
+      "arm": "structured_progress",
+      "attempted": 1,
+      "eligible": 0,
+      "excluded": 1,
+      "strict_counts": {
+        "pass": 0,
+        "fail": 0,
+        "unknown": 0
+      },
+      "success_fraction": {
+        "numerator": 0,
+        "denominator": 0
+      }
+    },
+    {
+      "scenario_id": "C2",
+      "arm": "structured_progress",
+      "attempted": 1,
+      "eligible": 0,
+      "excluded": 1,
+      "strict_counts": {
+        "pass": 0,
+        "fail": 0,
+        "unknown": 0
+      },
+      "success_fraction": {
+        "numerator": 0,
+        "denominator": 0
+      }
+    },
+    {
+      "scenario_id": "C3",
+      "arm": "ordinary",
+      "attempted": 1,
+      "eligible": 1,
+      "excluded": 0,
+      "strict_counts": {
+        "pass": 1,
+        "fail": 0,
+        "unknown": 0
+      },
+      "success_fraction": {
+        "numerator": 1,
+        "denominator": 1
+      }
+    },
+    {
+      "scenario_id": "C3",
+      "arm": "structured_progress",
+      "attempted": 1,
+      "eligible": 1,
+      "excluded": 0,
+      "strict_counts": {
+        "pass": 0,
+        "fail": 0,
+        "unknown": 1
+      },
+      "success_fraction": {
+        "numerator": 0,
+        "denominator": 1
+      }
+    },
+    {
+      "scenario_id": "R1",
+      "arm": "ordinary",
+      "attempted": 2,
+      "eligible": 2,
+      "excluded": 0,
+      "strict_counts": {
+        "pass": 1,
+        "fail": 1,
+        "unknown": 0
+      },
+      "success_fraction": {
+        "numerator": 1,
+        "denominator": 2
+      },
+      "component_counts": {
+        "functional": {
+          "pass": 2,
+          "fail": 0,
+          "unknown": 0
+        },
+        "workflow": {
+          "pass": 1,
+          "fail": 1,
+          "unknown": 0
+        },
+        "evidence": {
+          "pass": 2,
+          "fail": 0,
+          "unknown": 0
+        },
+        "completion": {
+          "pass": 2,
+          "fail": 0,
+          "unknown": 0
+        }
+      },
+      "resources": {
+        "estimated_cost_micro_usd": {
+          "known_sum": 20,
+          "known_count": 1,
+          "unknown_count": 1,
+          "complete_total": null
+        }
+      }
+    },
+    {
+      "scenario_id": "R2",
+      "arm": "ordinary",
+      "attempted": 1,
+      "eligible": 1,
+      "excluded": 0,
+      "strict_counts": {
+        "pass": 0,
+        "fail": 1,
+        "unknown": 0
+      },
+      "success_fraction": {
+        "numerator": 0,
+        "denominator": 1
+      },
+      "component_counts": {
+        "completion": {
+          "pass": 1,
+          "fail": 0,
+          "unknown": 0
+        }
+      }
+    },
+    {
+      "scenario_id": "R3",
+      "arm": "ordinary",
+      "attempted": 1,
+      "eligible": 0,
+      "excluded": 1,
+      "strict_counts": {
+        "pass": 0,
+        "fail": 0,
+        "unknown": 0
+      },
+      "success_fraction": {
+        "numerator": 0,
+        "denominator": 0
+      }
+    }
+  ]
+}

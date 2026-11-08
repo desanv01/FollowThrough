@@ -105,18 +105,15 @@ class E2EIdentityTests(unittest.TestCase):
         self.assertNotIn("stdout", raw)
         self.assertNotIn("stderr", raw)
 
-    def test_protected_grade_is_labelled_real_provider(self):
-        result = e2e.run_r1_smoke(
-            self.run_root,
-            episode_id="reviewed-r1-protected",
-            check_port=check_port,
-            model_port=scripted_port(self.run_root),
-            grade_fn=protected_grade_fn,
-        )
-        self.assertEqual(result["row"]["evidence_kind"], "real_provider")
-        self.assertEqual(result["row"]["stage"], "development")
-        self.assertEqual(result["row"]["outcomes"]["functional"], "pass")
-        self.assertEqual(result["row"]["outcomes"]["evidence"], "pass")
+    def test_protected_grade_without_live_mode_is_refused(self):
+        with self.assertRaises(e2e.E2EError):
+            e2e.run_r1_smoke(
+                self.run_root,
+                episode_id="reviewed-r1-protected",
+                check_port=check_port,
+                model_port=scripted_port(self.run_root),
+                grade_fn=protected_grade_fn,
+            )
 
     def test_runner_accepts_episode_id_for_p3(self):
         parameters = inspect.signature(e2e.run_r1_smoke).parameters
@@ -216,17 +213,28 @@ class E2EIdentityTests(unittest.TestCase):
                 model_port=scripted_port(self.run_root), grade_fn=protected_grade_fn,
                 live=True, operation={"evidence_kind": "real_provider"},
             )
+        for operation in (
+            {"evidence_kind": "real_provider", "operation_id": "", "run_id": "r"},
+            {"evidence_kind": "real_provider", "operation_id": "o", "run_id": " "},
+        ):
+            with self.assertRaises(e2e.E2EError):
+                e2e.run_r1_smoke(
+                    self.run_root, episode_id="live-empty-id",
+                    check_port=check_port,
+                    model_port=scripted_port(self.run_root),
+                    grade_fn=protected_grade_fn, live=True, operation=operation,
+                )
 
-    def test_operation_provenance_and_stage_drive_label(self):
-        result = e2e.run_r1_smoke(
-            self.run_root, episode_id="protected-pilot",
-            check_port=check_port,
-            model_port=scripted_port(self.run_root),
-            grade_fn=protected_grade_fn,
-            operation={"evidence_kind": "real_provider", "stage": "pilot"},
-        )
-        self.assertEqual(result["row"]["evidence_kind"], "real_provider")
-        self.assertEqual(result["row"]["stage"], "pilot")
+    def test_live_mode_rejects_synthetic_grade_provenance(self):
+        with self.assertRaises(e2e.E2EError):
+            e2e.run_r1_smoke(
+                self.run_root, episode_id="live-synthetic-grade",
+                check_port=check_port,
+                model_port=scripted_port(self.run_root),
+                grade_fn=grade_fn, live=True,
+                operation={"evidence_kind": "real_provider",
+                           "operation_id": "op-1", "run_id": "run-1"},
+            )
 
     def test_different_episode_ids_do_not_collide(self):
         self.run_root.mkdir(parents=True, exist_ok=True)

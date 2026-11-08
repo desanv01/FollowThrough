@@ -209,20 +209,22 @@ def _write_progress(run_root, result, episode_id, stage, evidence_kind,
     return state
 
 
-def run_r1_smoke(run_root, *, episode_id, check_port=None, model_port=None,
-                 grade_fn=None, observations=None, evidence_kind=None,
-                 stage=None, trial=1, operation=None,
-                 dataset_id="ds-end-to-end-r1", live=False):
-    """Run one R1 episode with required actual ports and a reviewed identity.
+def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
+                       arm="ordinary", check_port=None, model_port=None,
+                       grade_fn=None, observations=None, evidence_kind=None,
+                       stage=None, trial=1, operation=None,
+                       dataset_id="ds-end-to-end-r1", live=False):
+    """Run one scenario/arm episode with required ports and explicit identity.
 
-    ``model_port`` and ``check_port`` are mandatory; this seam has no authored
-    fallback ports. ``grade_fn(candidate_sha256, candidate_path)`` is required and
-    is not called when a check receipt is missing or its cleanup is not settled.
-    In ``live=True`` mode the operation must carry real-provider provenance and
-    explicit operation/run identities. The returned row binds
-    result/source/grade identities and is invalid/excluded on mismatch.
+    ``run_r1_smoke`` is the preserved R1/ordinary entry point. This generic form
+    is for the six-scenario/two-arm composition; it never selects an authored
+    port or grade and never fills a missing outcome.
     """
     episode_id = _valid_episode_id(episode_id)
+    if scenario_id not in runtime_projection.SCENARIOS:
+        raise E2EError("invalid_scenario")
+    if arm not in runtime_projection.ARMS:
+        raise E2EError("invalid_arm")
     if grade_fn is None or not callable(grade_fn):
         raise E2EError("grade_required")
     if model_port is None or not callable(model_port):
@@ -233,10 +235,12 @@ def run_r1_smoke(run_root, *, episode_id, check_port=None, model_port=None,
     if live:
         if operation.get("evidence_kind") != "real_provider":
             raise E2EError("live_operation_provenance_required")
-        if not isinstance(operation.get("operation_id"), str):
+        if not isinstance(operation.get("operation_id"), str) or not operation["operation_id"].strip():
             raise E2EError("live_operation_id_required")
-        if not isinstance(operation.get("run_id"), str):
+        if not isinstance(operation.get("run_id"), str) or not operation["run_id"].strip():
             raise E2EError("live_run_id_required")
+    if evidence_kind == "real_provider" and not live:
+        raise E2EError("live_mode_required_for_real_provider")
     run_root = Path(run_root)
     receipts = []
 
@@ -248,10 +252,10 @@ def run_r1_smoke(run_root, *, episode_id, check_port=None, model_port=None,
 
     envelope = driver_module.run_scenario(
         SNAPSHOT_ROOT,
-        "R1",
+        scenario_id,
         run_root=run_root,
         episode_id=episode_id,
-        arm="ordinary",
+        arm=arm,
         limits=dict(LIMITS),
         model_port=model_port,
         check_port=capture_check,
@@ -263,7 +267,9 @@ def run_r1_smoke(run_root, *, episode_id, check_port=None, model_port=None,
     result = envelope["result"]
     if result.get("episode_id") != episode_id:
         raise E2EError("episode_identity_not_preserved")
-    candidate = run_root / "package" / "agent" / "processor.py"
+    filename = ("preview.py" if scenario_id in ("C1", "C2", "C3")
+                else "processor.py")
+    candidate = run_root / "package" / "agent" / filename
     candidate_sha = _sha(candidate.read_bytes())
     source = {
         "candidate_sha256": result.get("current_candidate_sha256"),
@@ -313,14 +319,23 @@ def run_r1_smoke(run_root, *, episode_id, check_port=None, model_port=None,
     grade = grade_fn(candidate_sha, candidate)
     if not isinstance(grade, dict):
         raise E2EError("invalid_grade")
+    grade_is_protected = (
+        grade.get("evidence_kind") == "protected_container_grading"
+    )
+    if live and not grade_is_protected:
+        raise E2EError("live_grade_provenance_mismatch")
+    if not live and grade_is_protected:
+        raise E2EError("live_mode_required_for_real_provider")
     if evidence_kind is None:
         operation_provenance = operation.get("evidence_kind")
         if operation_provenance in runtime_projection.EVIDENCE_KINDS:
             evidence_kind = operation_provenance
-        elif grade.get("evidence_kind") == "protected_container_grading":
+        elif grade_is_protected:
             evidence_kind = "real_provider"
         else:
             evidence_kind = "synthetic_development"
+    if evidence_kind == "real_provider" and not grade_is_protected:
+        raise E2EError("real_provider_grade_required")
     if stage is None:
         stage = operation.get("stage") or "development"
     if live and evidence_kind != "real_provider":
@@ -369,4 +384,18 @@ def run_r1_smoke(run_root, *, episode_id, check_port=None, model_port=None,
     }
 
 
-__all__ = ["E2EError", "LIMITS", "run_r1_smoke", "scripted_r1_model_port"]
+def run_r1_smoke(run_root, *, episode_id, check_port=None, model_port=None,
+                 grade_fn=None, observations=None, evidence_kind=None,
+                 stage=None, trial=1, operation=None,
+                 dataset_id="ds-end-to-end-r1", live=False):
+    """Preserved R1/ordinary entry point backed by the generic composition."""
+    return run_scenario_smoke(
+        run_root, episode_id=episode_id, scenario_id="R1", arm="ordinary",
+        check_port=check_port, model_port=model_port, grade_fn=grade_fn,
+        observations=observations, evidence_kind=evidence_kind, stage=stage,
+        trial=trial, operation=operation, dataset_id=dataset_id, live=live,
+    )
+
+
+__all__ = ["E2EError", "LIMITS", "run_r1_smoke", "run_scenario_smoke",
+           "scripted_r1_model_port"]

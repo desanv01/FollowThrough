@@ -168,7 +168,7 @@ def _safe_progress_events(run_root):
 
 
 def _write_progress(run_root, result, episode_id, stage, evidence_kind,
-                    source, operation):
+                    source, operation, status_override=None):
     events = _safe_progress_events(run_root)
     event_path = Path(run_root) / "progress-events.jsonl"
     with event_path.open("w", encoding="utf-8", newline="") as handle:
@@ -190,7 +190,9 @@ def _write_progress(run_root, result, episode_id, stage, evidence_kind,
         "estimated_cost_micro_usd": operation.get("estimated_cost_micro_usd"),
         "reserved_micro_usd": operation.get("reserved_micro_usd"),
         "cleanup": (result.get("cleanup") if isinstance(result, dict) else None),
-        "status": (result.get("status") if isinstance(result, dict) else None),
+        "status": status_override or (
+            result.get("status") if isinstance(result, dict) else None
+        ),
     }
     (Path(run_root) / "progress-meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
@@ -207,33 +209,39 @@ def _write_progress(run_root, result, episode_id, stage, evidence_kind,
     return state
 
 
-def run_r1_smoke(run_root, *, episode_id, check_port=None, observations=None,
-                 evidence_kind=None, model_port=None,
-                 grade_fn=None, stage=None, trial=1, operation=None,
-                 dataset_id="ds-end-to-end-r1"):
-    """Run one R1 episode with a reviewed identity and build a report row.
+def run_r1_smoke(run_root, *, episode_id, check_port=None, model_port=None,
+                 grade_fn=None, observations=None, evidence_kind=None,
+                 stage=None, trial=1, operation=None,
+                 dataset_id="ds-end-to-end-r1", live=False):
+    """Run one R1 episode with required actual ports and a reviewed identity.
 
-    ``grade_fn(candidate_sha256, candidate_path)`` is required; this seam never
-    invents a protected grade.  ``check_port`` may be synthetic or the trusted
-    bridge.  When labels are omitted, a protected grade is reported as
-    ``real_provider`` at development stage; a synthetic grade as
-    ``synthetic_development``/development.  The returned report row binds
+    ``model_port`` and ``check_port`` are mandatory; this seam has no authored
+    fallback ports. ``grade_fn(candidate_sha256, candidate_path)`` is required and
+    is not called when a check receipt is missing or its cleanup is not settled.
+    In ``live=True`` mode the operation must carry real-provider provenance and
+    explicit operation/run identities. The returned row binds
     result/source/grade identities and is invalid/excluded on mismatch.
     """
     episode_id = _valid_episode_id(episode_id)
     if grade_fn is None or not callable(grade_fn):
         raise E2EError("grade_required")
+    if model_port is None or not callable(model_port):
+        raise E2EError("actual_model_port_required")
+    if check_port is None or not callable(check_port):
+        raise E2EError("actual_check_port_required")
+    operation = operation if isinstance(operation, dict) else {}
+    if live:
+        if operation.get("evidence_kind") != "real_provider":
+            raise E2EError("live_operation_provenance_required")
+        if not isinstance(operation.get("operation_id"), str):
+            raise E2EError("live_operation_id_required")
+        if not isinstance(operation.get("run_id"), str):
+            raise E2EError("live_run_id_required")
     run_root = Path(run_root)
-    package = run_root / "package"
-    agent = package / "agent"
-    correct_source = (SNAPSHOT_ROOT / "references" / "retry-processing" /
-                      "correct" / "processor.py").read_text(encoding="utf-8")
-    if model_port is None:
-        model_port = scripted_r1_model_port(agent, correct_source)
     receipts = []
 
     def capture_check(request):
-        receipt = check_port(request) if check_port is not None else _synthetic_check(request)
+        receipt = check_port(request)
         if isinstance(receipt, dict):
             receipts.append(receipt)
         return receipt
@@ -250,27 +258,73 @@ def run_r1_smoke(run_root, *, episode_id, check_port=None, observations=None,
     )
     if envelope.get("status") != "episode_returned":
         return {"envelope": envelope, "episode_id": episode_id,
-                "grade": None, "report": None, "row": None, "binding": None}
+                "grade": None, "report": None, "row": None, "binding": None,
+                "grade_started": False}
     result = envelope["result"]
     if result.get("episode_id") != episode_id:
         raise E2EError("episode_identity_not_preserved")
-    candidate = package / "agent" / "processor.py"
+    candidate = run_root / "package" / "agent" / "processor.py"
     candidate_sha = _sha(candidate.read_bytes())
-    grade = grade_fn(candidate_sha, candidate)
-    if not isinstance(grade, dict):
-        raise E2EError("invalid_grade")
-    if evidence_kind is None:
-        evidence_kind = (
-            "real_provider"
-            if grade.get("evidence_kind") == "protected_container_grading"
-            else "synthetic_development"
-        )
-    if stage is None:
-        stage = "development"
     source = {
         "candidate_sha256": result.get("current_candidate_sha256"),
         "requirements_version": result.get("current_requirements_version"),
     }
+    events = _events_from_checks(receipts, result)
+    reason = None
+    if not receipts:
+        reason = "check_receipt_missing"
+    elif any(
+        not isinstance(receipt, dict) or receipt.get("cleanup") != "settled"
+        for receipt in receipts
+    ):
+        reason = "check_cleanup_unknown"
+    if reason is not None:
+        provenance = operation.get("evidence_kind")
+        if provenance not in runtime_projection.EVIDENCE_KINDS:
+            provenance = "synthetic_development"
+        stage_name = operation.get("stage") or stage or "development"
+        row, binding = runtime_projection.project_unscored_episode(
+            result, events, source=source, evidence_kind=provenance,
+            stage=stage_name, trial=trial, operation=operation, reason=reason,
+        )
+        report_input = runtime_projection.project_report_input(dataset_id, [row])
+        report = build_report(report_input)
+        for name, payload in (
+            ("report-input.json", report_input),
+            ("report.json", report),
+            ("episode-binding.json", binding),
+            ("grade-skipped.json", {"reason": reason, "grade_started": False}),
+        ):
+            (run_root / name).write_text(
+                json.dumps(payload, ensure_ascii=False, indent=2,
+                           sort_keys=True) + "\n", encoding="utf-8")
+        (run_root / "report.md").write_text(render_markdown(report), encoding="utf-8")
+        progress_state = _write_progress(
+            run_root, result, episode_id, stage_name, provenance, source,
+            operation, status_override="infrastructure_error",
+        )
+        return {
+            "envelope": envelope, "episode_id": episode_id, "grade": None,
+            "grade_started": False, "grade_skipped_reason": reason,
+            "report": report, "row": row, "binding": binding, "result": result,
+            "candidate_sha256": candidate_sha, "progress": progress_state,
+        }
+    grade_started = True
+    grade = grade_fn(candidate_sha, candidate)
+    if not isinstance(grade, dict):
+        raise E2EError("invalid_grade")
+    if evidence_kind is None:
+        operation_provenance = operation.get("evidence_kind")
+        if operation_provenance in runtime_projection.EVIDENCE_KINDS:
+            evidence_kind = operation_provenance
+        elif grade.get("evidence_kind") == "protected_container_grading":
+            evidence_kind = "real_provider"
+        else:
+            evidence_kind = "synthetic_development"
+    if stage is None:
+        stage = operation.get("stage") or "development"
+    if live and evidence_kind != "real_provider":
+        raise E2EError("live_grade_provenance_mismatch")
     events = _events_from_checks(receipts, result)
     row, binding = runtime_projection.project_episode(
         result,
@@ -305,6 +359,7 @@ def run_r1_smoke(run_root, *, episode_id, check_port=None, observations=None,
         "envelope": envelope,
         "episode_id": episode_id,
         "grade": grade,
+        "grade_started": True,
         "report": report,
         "row": row,
         "binding": binding,

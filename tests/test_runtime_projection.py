@@ -179,6 +179,23 @@ class RuntimeProjectionTests(unittest.TestCase):
         row, _ = project(grade=failed)
         self.assertEqual(row["outcomes"]["functional"], "fail")
 
+    def test_unscored_episode_is_infrastructure_excluded(self):
+        row, binding = runtime_projection.project_unscored_episode(
+            result(), [event("episode_start")], source=source(),
+            evidence_kind="synthetic_development", stage="development",
+            operation={"run_id": "run-1", "operation_id": "op-1"},
+            reason="check_cleanup_unknown",
+        )
+        self.assertEqual(row["status"], "infrastructure_error")
+        self.assertEqual(set(row["outcomes"].values()), {"unknown"})
+        self.assertFalse(binding["binding_match"])
+        self.assertEqual(binding["grade_skipped_reason"], "check_cleanup_unknown")
+        self.assertEqual(binding["run_id"], "run-1")
+        report = build_report(runtime_projection.project_report_input(
+            "unscored", [row]))
+        self.assertEqual(report["episodes"][0]["strict_outcome"], "not_scored")
+        self.assertEqual(report["groups"][0]["excluded"], 1)
+
     def test_provider_provenance_and_stage_consistency(self):
         with self.assertRaises(runtime_projection.ProjectionError):
             project(evidence_kind="synthetic_development", stage="pilot")

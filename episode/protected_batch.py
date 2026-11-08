@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 import sys
 
-from episode.protected_session import DockerSession, grade_session
+from episode.protected_session import DockerSession, docker_env, grade_session
 
 ROOT = Path(__file__).resolve().parents[1]
 IMAGE = "python@sha256:d29f48a31a8b408ed19272ca1e7b10ebae13b240a27e862d3d4217c528e2e0c3"
@@ -39,7 +39,7 @@ def run_batch(docker, run_root):
     probe = subprocess.run(
         [str(docker), "version", "--format", "{{json .Server}}"],
         stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE, timeout=20, check=False,
+        stderr=subprocess.PIPE, timeout=20, check=False, env=docker_env(),
     )
     if probe.returncode != 0:
         raise RuntimeError("docker_gate_refused")
@@ -78,7 +78,12 @@ def run_batch(docker, run_root):
         path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n",
                         encoding="utf-8")
         summaries.append(summary)
+        if summary.get("cleanup") != "settled" or summary.get("status") == "infrastructure_error":
+            raise RuntimeError("cleanup_or_infrastructure_stop")
     summaries.append(_public_failure(docker, run_root))
+    if (summaries[-1].get("cleanup") != "settled"
+            or summaries[-1].get("removal_verified") is not True):
+        raise RuntimeError("public_cleanup_unknown_stop")
     return summaries
 
 
@@ -102,9 +107,14 @@ def _public_failure(docker, run_root):
         receipt = json.loads((output / "receipt.json").read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError):
         pass
+    cleanup = receipt.get("cleanup")
+    cleanup_state = cleanup.get("state") if isinstance(cleanup, dict) else cleanup
     summary = {
         "control": "failing_public", "expected": "check_failed",
-        "status": receipt.get("status"), "cleanup": receipt.get("cleanup"),
+        "status": receipt.get("status"), "cleanup": cleanup_state,
+        "cleanup_detail": cleanup,
+        "removal_verified": (cleanup.get("removal_verified")
+                             if isinstance(cleanup, dict) else None),
         "public_check_exit": receipt.get("public_check_exit"),
         "process_exit": completed.returncode,
         "candidate_sha256": receipt.get("workspace", {}).get("candidate_sha256"),

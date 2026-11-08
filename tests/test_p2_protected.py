@@ -368,7 +368,8 @@ class ProtectedGradeTests(unittest.TestCase):
             "Id": session._id,
             "Name": "/" + session.name,
             "Image": "sha256:" + "b" * 64,
-            "Config": {"Image": ps.IMAGE, "User": "65534:65534"},
+            "Config": {"Image": ps.IMAGE, "User": "65534:65534",
+                       "OpenStdin": True},
             "HostConfig": {
                 "NetworkMode": "none", "ReadonlyRootfs": True,
                 "CapDrop": ["ALL"], "SecurityOpt": ["no-new-privileges"],
@@ -393,6 +394,29 @@ class ProtectedGradeTests(unittest.TestCase):
         broken = copy.deepcopy(facts)
         broken["Mounts"][0]["RW"] = True
         self.assertFalse(session._witness_ok(broken))
+        broken = copy.deepcopy(facts)
+        broken["Config"]["OpenStdin"] = False
+        self.assertFalse(session._witness_ok(broken))
+        broken = copy.deepcopy(facts)
+        for mount in broken["Mounts"]:
+            source = mount["Source"].replace("\\", "/")
+            if source[1:3] == ":/":
+                drive, rest = source.split(":/", 1)
+                mount["Source"] = "/host_mnt/" + drive.lower() + "/" + rest
+        self.assertTrue(session._witness_ok(broken))
+
+    def test_retry_batch_defaults_to_refusal_without_execute(self):
+        from episode import protected_batch as batch
+        run_root = ROOT / "tmp" / "test-retry-batch-refusal"
+        if run_root.exists():
+            for child in sorted(run_root.rglob("*"), reverse=True):
+                if child.is_file():
+                    child.unlink()
+                else:
+                    child.rmdir()
+            run_root.rmdir()
+        self.assertEqual(batch.main(["--run-root", str(run_root)]), 2)
+        self.assertFalse(run_root.exists())
 
     def test_docker_session_timeout_and_frame_limit_are_classified(self):
         session = ps.DockerSession("docker", ROOT / "candidate.py", ROOT / "protected", "p2-timeout")

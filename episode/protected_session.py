@@ -217,7 +217,7 @@ class DockerSession(Session):
     qualified = True
 
     def __init__(self, docker, candidate, shim_dir, run_id, *, image=IMAGE,
-                 timeout=30, shim_name="retry_shim.py"):
+                 timeout=120, shim_name="retry_shim.py"):
         self.docker = str(docker)
         self.candidate = str(Path(candidate).resolve())
         self.shim_dir = str(Path(shim_dir).resolve())
@@ -233,6 +233,7 @@ class DockerSession(Session):
         self._id = None
         self._frames = 0
         self._max_frames = 128
+        self._received_bytes = 0
 
     def _run(self, argv, timeout=10, input_bytes=None):
         try:
@@ -240,14 +241,14 @@ class DockerSession(Session):
                 argv, input=input_bytes,
                 stdin=subprocess.PIPE if input_bytes is None else None,
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                timeout=timeout, check=False, env=_docker_env(),
+                timeout=timeout, check=False, env=docker_env(),
             )
         except (OSError, subprocess.TimeoutExpired):
             raise ProtectedGradeError("docker_command_failed") from None
 
     def start(self):
         create = self._run([
-            self.docker, "create", "--pull=never", "--name", self.name,
+            self.docker, "create", "--pull=never", "--interactive", "--name", self.name,
             "--network=none", "--read-only", "--cap-drop=ALL",
             "--security-opt=no-new-privileges", "--pids-limit=64",
             "--memory=256m", "--cpus=1", "--user=65534:65534",
@@ -274,10 +275,10 @@ class DockerSession(Session):
         if not self._witness_ok(facts):
             raise ProtectedGradeError("docker_isolation_mismatch")
         start = subprocess.Popen(
-            [self.docker, "start", "-a", "-i", self.name],
+            [self.docker, "start", "-a", "-i", self._id],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL, text=True, encoding="utf-8",
-            errors="replace", bufsize=1,
+            errors="replace", bufsize=1, env=docker_env(),
         )
         self.proc = start
         self.queue = queue.Queue()
@@ -319,7 +320,7 @@ class DockerSession(Session):
                 destination = mount["Destination"]
                 if destination not in expected_mounts or mount.get("RW") is not False:
                     return False
-                source = os.path.normcase(os.path.abspath(str(mount.get("Source", ""))))
+                source = _normalized_source(mount.get("Source", ""))
                 if source != expected_mounts[destination]:
                     return False
                 seen[destination] = True
@@ -338,6 +339,7 @@ class DockerSession(Session):
                 and facts["Name"] == "/" + self.name
                 and facts["Config"]["Image"] == IMAGE
                 and facts["Config"]["User"] == "65534:65534"
+                and facts["Config"]["OpenStdin"] is True
                 and type(image_id) is str and image_id.startswith("sha256:")
                 and len(image_id) == 71
                 and facts["HostConfig"]["NetworkMode"] == "none"
@@ -378,6 +380,9 @@ class DockerSession(Session):
             raise ProtectedGradeError("candidate_session_timeout") from None
         if len(line) > 65536:
             raise ProtectedGradeError("candidate_frame_too_large")
+        self._received_bytes += len(line.encode("utf-8", errors="replace"))
+        if self._received_bytes > 1024 * 1024:
+            raise ProtectedGradeError("candidate_output_limit")
         try:
             frame = json.loads(line)
         except json.JSONDecodeError:
@@ -400,16 +405,34 @@ class DockerSession(Session):
                 self.proc.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 pass
-        removed = self._run([self.docker, "rm", "--force", self.name])
-        listed = self._run([self.docker, "ps", "-a", "--quiet", "--filter",
-                            "name=^/?" + self.name + "$"])
+        target = self._id or self.name
+        removed = self._run([self.docker, "rm", "--force", target])
+        if self._id:
+            listed = self._run([self.docker, "ps", "-a", "--quiet", "--filter",
+                                "id=" + self._id])
+        else:
+            listed = self._run([self.docker, "ps", "-a", "--quiet", "--filter",
+                                "name=^/?" + self.name + "$"])
         if removed.returncode == 0 and listed.returncode == 0 and not listed.stdout.strip():
             self.cleanup = "settled"
         else:
             self.cleanup = "unknown"
 
 
-def _docker_env():
+def _normalized_source(value):
+    text = str(value).replace("\\", "/")
+    if text.startswith("/host_mnt/"):
+        parts = text.split("/", 3)
+        if len(parts) == 4 and len(parts[2]) == 1:
+            text = parts[2].upper() + ":/" + parts[3]
+    elif text.startswith("/run/desktop/mnt/host/"):
+        parts = text.split("/", 6)
+        if len(parts) >= 7 and len(parts[5]) == 1:
+            text = parts[5].upper() + ":/" + parts[6]
+    return os.path.normcase(os.path.abspath(text))
+
+
+def docker_env():
     """Do not leak credentials, provider keys or project env into Docker CLI."""
     allowed = ("PATH", "SystemRoot", "WINDIR", "TEMP", "TMP", "TMPDIR",
                "ProgramData", "ProgramFiles")
@@ -469,6 +492,7 @@ def grade_session(session, candidate_sha256, *, evidence_kind, cleanup="settled"
         raise ProtectedGradeError("invalid_evidence_kind")
     work = Path(tempfile.gettempdir()) / ("protected-session-" + uuid.uuid4().hex)
     work.mkdir()
+    total_deadline = time.monotonic() + float(getattr(session, "timeout", 30))
     store = HostStore(work / "store.sqlite")
     checks = []
     errors = []
@@ -483,7 +507,7 @@ def grade_session(session, candidate_sha256, *, evidence_kind, cleanup="settled"
             result = None
             deadline = time.monotonic() + 30
             while result is None:
-                if time.monotonic() > deadline:
+                if time.monotonic() > deadline or time.monotonic() > total_deadline:
                     raise ProtectedGradeError("candidate_session_timeout")
                 frame = session.receive(max(0.1, deadline - time.monotonic()))
                 if frame.get("type") == "store":

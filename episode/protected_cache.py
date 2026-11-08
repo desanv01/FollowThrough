@@ -163,6 +163,7 @@ def grade_cache(session, candidate_sha256, *, evidence_kind,
     host = CacheHost()
     checks = []
     errors = []
+    total_deadline = time.monotonic() + float(getattr(session, "timeout", 30))
     try:
         session.start()
         cases = [
@@ -189,6 +190,8 @@ def grade_cache(session, candidate_sha256, *, evidence_kind,
         ]
         host.literal.add(("Delta", "memo", 3))
         for index, (check_id, args, expected, _) in enumerate(cases):
+            if time.monotonic() > total_deadline:
+                raise ProtectedGradeError("cache_total_timeout")
             host.reset_op_counts()
             frame = host._run_call(session, index, args)
             passed = (frame.get("status") == "ok" and frame.get("value") == expected)
@@ -206,6 +209,8 @@ def grade_cache(session, candidate_sha256, *, evidence_kind,
         base = len(cases)
         invalid_passed = True
         for offset, (args, expected_error) in enumerate(invalid_cases):
+            if time.monotonic() > total_deadline:
+                raise ProtectedGradeError("cache_total_timeout")
             host.reset_op_counts()
             frame = host._run_call(session, base + offset, args)
             if frame.get("status") != "exception" or frame.get("class") != expected_error.__name__:
@@ -256,6 +261,7 @@ def grade_cache(session, candidate_sha256, *, evidence_kind,
         "schema_version": SCHEMA,
         "task_family": "preview-cache",
         "candidate_sha256": candidate_sha256,
+        "run_id": getattr(session, "run_id", None),
         "requirements_version": requirements_version,
         "grade_kind": "checkpoint" if checkpoint_id else "final",
         "checkpoint_id": checkpoint_id,

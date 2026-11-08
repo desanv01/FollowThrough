@@ -1,0 +1,3 @@
+# Preserve exact benchmark and fixture bytes on every checkout.
+# Catalog identities are byte hashes; platform newline conversion changes them.
+* -text

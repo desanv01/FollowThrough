@@ -12,3 +12,20 @@
 | 2026-11-07 | Integration | Codex main integrated accepted source and verified combined root-level Python collection/execution | 50 tests passed; corrected retry positive control passed through Rust; no live benchmark result |
 
 Update with accepted source identities and actual checks. Human must review task requirements, reference behavior, grader controls and final claims before submission. Licence choice pending; no third-party assets/data copied into task fixtures.
+
+## Preparation status — 7 November 2026
+
+This ledger was extended for release preparation against frozen baseline `166a304b32d92f66519b8b4074fee510cbffdaeb`; the rows above are the pinned original bytes and retain their attribution. Later work is recorded below only as **delivered but unaccepted**. `COMPLETE`/`COMPLETE_STOPPED` describes a worker stopping at a finite boundary; it does **not** mean integrated, independently accepted or shipped. No commits, professional biographies, licence selection or third-party grants are asserted.
+
+| Date | Workstream | Contribution | Pinned status |
+|---|---|---|---|
+| 2026-11-07 | Scenario package | Human-launched DeepSeek worker DS-SCENARIOS-01 delivered P1-SCENARIOS/r1 (scenario definitions, fallback publication, tests). 18 tests were run: 17 passed and 1 was skipped for missing symlink privilege. Independent review required P1-SCENARIOS/r2 corrections (fallback publication, safe output restriction, integrated test root, visible schedule/review wording, asset reparse guards). | `CHANGES_REQUIRED`; `NOT_INTEGRATED`; `NOT_ACCEPTED`. P1-SCENARIOS/r2 is `CORRECTION_READY`; human launch not confirmed. |
+| 2026-11-07 | Isolation plan | Human-launched DeepSeek worker DS-ISOLATION-01 delivered P2-ISOLATION-PLAN/r1 (candidate isolation design and tests). 12 tests passed; separately disclosed platform branches were not exercised. Independent review required P2-ISOLATION-PLAN/r2 for a Windows mount path that could name a different directory from the hashed inventory. | `CHANGES_REQUIRED`; `NOT_INTEGRATED`; `NOT_ACCEPTED`. P2-ISOLATION-PLAN/r2 is `CORRECTION_READY`; human launch not confirmed. |
+| 2026-11-07 | Budget and credential path | Human-launched DeepSeek worker DS-BUDGET-01 delivered P3-BUDGET/r2 (budget reservation and credential-fallback work, plus tests). 95 tests passed **including 17 copied adapter tests**, so this is not 95 newly authored budget tests. Review closed some exception-boundary and credential-fallback findings within r2 scope and left residual storage-admission and reservation findings requiring P3-BUDGET/r3. | `CHANGES_REQUIRED`; `NOT_INTEGRATED`; `NOT_ACCEPTED`. P3-BUDGET/r3 is `CORRECTION_READY`; human launch not confirmed. |
+
+### Counting and attribution rules
+
+- The accepted foundation is counted separately: **50 accepted Python tests** (7 retry + 26 preview-cache + 17 adapter) plus 7 Rust boundary tests. Do not add candidate test counts to it, and do not present any combined number as a new integrated total or a benchmark score.
+- The budget candidate's 95 reported tests include 17 copied adapter tests; they overlap the accepted adapter suite and are not an additional independent budget suite.
+- User contribution: motivating workflow experience and approved direction. Main: coordination, integration, acceptance and GitHub publication of the accepted baseline. Codex Sol Medium: original retry/controller/adapter implementation and the cache takeover. Sol High: independent reviews. Human-launched DeepSeek workers: cache, scenario, isolation-plan and budget candidates, each launched through posted prompts. Reviewer findings are not acceptance, and worker `COMPLETE` status is not integration.
+- No author's professional experience, employment, credentials or endorsement is claimed; the human user has not been shown to have reviewed every artefact semantically. No licence has been selected; no open-source grant is asserted; no third-party implementation, data or assets were added by this documentation packet.

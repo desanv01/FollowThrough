@@ -1,50 +1,68 @@
 # FollowThrough
 
-An evaluation of agent teams completing software repairs under persistent workflow rules. RepairLoop tracks whether review evidence turns into correct repairs and supported completion.
+FollowThrough evaluates whether a coding agent team completes a repair, follows its workflow, uses current verification evidence, and supports its completion claim.
 
-Implementation is in progress. No live evaluation results are available yet.
+The CLI prepares six scenarios across two authored task families, runs an orchestrator/worker/reviewer loop, records check receipts and source identities, and renders saved results in a terminal ledger or a portable read-only report. Ordinary and structured-progress workflows use the same task requirements.
 
-Two planned task families: transactional retry processing and preview caching under updated requirements. Six scenarios belong to these two families; they are not six independent domains.
+## Development preview
 
-See [project plan](docs/project/PLAN.md), [acceptance gates](docs/project/ACCEPTANCE.md), and [integration contract](docs/project/CONTRACTS.md).
+One real DeepSeek development episode has been recorded. Its protected Retry v1 functional grade passed. A public check failed during Docker setup, and the overall episode was recorded as an infrastructure error and excluded from scoring. Workflow, evidence and completion remained unknown.
 
-## Current scope
+The trace also exposed a mismatch between the live check bridge and the episode loop. The released source includes the reviewed correction and infrastructure-classification regression checks. This corrected source has not been demonstrated by a second paid episode. Pilot and formal evaluation results remain pending.
 
-The accepted source contains authored repair fixtures, independent Python functional graders, a Rust controller for trusted retry controls, six reproducible scenario packages, a source-only container planner, and an offline-tested DeepSeek adapter with credential loading and a cumulative reservation ledger. Actual container execution, protected grading, the evaluated-role loop and the live campaign remain unaccepted. The trusted Rust controller supports the retry family; the cache grader runs directly.
+See [development status](docs/release/DEVELOPMENT-STATUS.md) for measured scope, limitations and resource accounting. Native authored Retry, Cache v2 and Cache v1 checkpoint controls and both direct grader self-tests have recorded expected outcomes. Authored controls establish checker behavior and are labeled separately from model episodes.
 
-The [scenario guide](docs/project/SCENARIOS.md) describes package preparation. Preparation does not execute the controller's scheduled events or establish an agent result. The [isolation planner](docs/project/ISOLATION-PLAN.md) emits a plan; it has not qualified an execution sandbox. Release checklists and the demo outline are dated preparation documents, not completed release artifacts.
+## Tasks and evidence
 
-These local controls demonstrate checker behavior. They are not model benchmark scores, proof of workflow completion, or an execution sandbox. Do not run untrusted candidate code through the current host-based commands.
+- Retry processing tests interrupted transactions, duplicate delivery and replay.
+- Preview Cache tests project/document/revision/mode identity, requirement changes and stale verification.
+- Each episode records functional, workflow, evidence and completion outcomes separately.
+- Candidate hashes and requirement versions identify the source a check or review actually covered.
+- Host checkpoints support observed trajectory analysis when independently graded.
 
-## Run trusted local controls
+The [scenario guide](docs/project/SCENARIOS.md), [task examples](docs/project/TASK-EXAMPLES.md), [methods](docs/research/METHODS.md), and [integration contract](docs/project/CONTRACTS.md) describe the task and evidence model.
 
-Use Python 3.11 or later. No third-party Python packages are required.
+## Run authored local controls
 
-```sh
+Use Python 3.11 or later.
+
+~~~sh
 python -B grader/retry_processing.py --self-test
 python -B grader/preview_cache.py --self-test
 python -B -m unittest discover -s tests -v
-```
+python -B -m unittest discover -s p5/tests -v
+~~~
 
-Each self-test checks the authored correct solution and intentional defects. A valid functional failure is different from a candidate execution error or a grader failure. The graders retain this distinction in their JSON output and exit status.
+These commands execute the authored trusted fixtures. The output distinguishes functional failure, candidate execution error and grader/infrastructure error. Use the isolated execution path for evaluated candidate code.
 
-Build the controller with a Rust toolchain:
+Build and test the Rust controller with the pinned CI toolchain or a compatible installed Rust toolchain.
 
-```sh
+~~~sh
 cargo build --locked --manifest-path runner/Cargo.toml
 cargo test --locked --manifest-path runner/Cargo.toml
-```
+~~~
 
-Create the `runs` directory, then use a new output directory for each invocation:
+See the [runner guide](runner/README.md), [container executor](docs/project/CONTAINER-EXECUTOR.md), and [live driver](docs/project/LIVE-DRIVER.md) for supported invocation, limits and cleanup behavior. Native evidence is scoped to the recorded Windows/Docker environment.
 
-```sh
-runner/target/debug/followthrough control --project-root . --candidate references/retry-processing/correct/processor.py --python python --output-dir runs/example-001
-```
+## Inspect a saved report
 
-On Windows, the executable has an `.exe` suffix. See the [runner guide](runner/README.md) for output limits, exit codes, path handling and cleanup limitations. Windows environments with restricted temporary directories may require an explicitly writable owned TEMP/TMP directory; permission failures are infrastructure errors, not candidate scores.
+The included report fixture contains synthetic development records.
 
-## Provider and experiment status
+~~~sh
+python -B -m reporting.report --input tests/fixtures/reporting/v0.1/input.json --output-dir runs/report-example
+python -B -m reporting.run_ledger --input tests/fixtures/reporting/v0.1/input.json --format text
+python -B -m reporting.run_ledger --input tests/fixtures/reporting/v0.1/input.json --format tui
+~~~
 
-The [DeepSeek adapter](adapters/README.md), project `.env.local` loader and cumulative reservation ledger have passed independent offline source review. The [provider-access guide](docs/project/PROVIDER-ACCESS.md) describes their behavior and restrictions. The local US$20 authorization envelope depends on the documented pricing/token assumptions and is not a provider-billing guarantee. No live provider call or billing validation has been performed. Live dispatch still requires a verified access path, accepted episode bridges and qualified execution. Never commit credentials or expose them to evaluated task workspaces.
+Use a fresh output directory for report generation. The interactive ledger requires a supported terminal. Text and JSON modes are available for logs and automation. See the [ledger guide](docs/project/RUN-LEDGER.md) and [read-only browser viewer](docs/project/VIEWER.md).
 
-See [methods](docs/research/METHODS.md), [execution board](docs/project/EXECUTION-BOARD.md), [hybrid development workflow](docs/project/HYBRID-WORKFLOW.md) and [contributions](docs/release/CONTRIBUTIONS.md). Private coordination and raw run artifacts are excluded from the repository. This project is released under the GNU Affero General Public License, version 3 only (`AGPL-3.0-only`); see [LICENSE](LICENSE) and [NOTICE](NOTICE). Third-party components retain their own licenses.
+## Provider and budget
+
+The official DeepSeek adapter loads credentials from the ignored local environment file and uses one campaign reservation ledger. Reviewed live operations bind source, scenario, operation identity and resource limits before dispatch. Unknown usage, reservations and cleanup remain explicit. Reservation estimates depend on the documented pricing/token assumptions.
+
+See the [adapter guide](adapters/README.md) and [provider access](docs/project/PROVIDER-ACCESS.md). Keep credentials, private coordination, budget files and raw run artifacts outside published source and evaluated workspaces.
+
+## Licence
+
+FollowThrough is released under GNU Affero General Public License version 3 only, AGPL-3.0-only. See [LICENSE](LICENSE), [NOTICE](NOTICE), and [contributions](docs/release/CONTRIBUTIONS.md). Third-party components retain their own licence terms.
+

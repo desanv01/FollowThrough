@@ -1,5 +1,9 @@
 # Offline-source CI
 
+The workflow is active for the scoped hosted delivery. Ubuntu and Windows checks run on each published source head, and merge readback verifies the delivered tree. Historical preparation evidence below remains tied to its original snapshot. The current workflow is at [.github/workflows/ci.yml](../../.github/workflows/ci.yml).
+
+## Historical preparation record
+
 **Preparation status — 8 November 2026.** Candidate proposal for packet P6-CI/r1 against frozen baseline commit `166a304b32d92f66519b8b4074fee510cbffdaeb`. Main owns installation, publication, hosted execution, acceptance and merge. **This workflow is not installed or active, no hosted run exists, and no CI badge or hosted result is claimed.** Evidence kind: `offline_ci_preparation`.
 
 ## Scope

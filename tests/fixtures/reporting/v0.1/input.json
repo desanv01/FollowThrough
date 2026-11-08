@@ -1,0 +1,310 @@
+{
+  "schema_version": "report-input-0.1",
+  "dataset_id": "synthetic-report-contract-v0.1",
+  "episodes": [
+    {
+      "episode_id": "synthetic-r1-success",
+      "scenario_id": "R1",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "completed",
+      "outcomes": {
+        "functional": "pass",
+        "workflow": "pass",
+        "evidence": "pass",
+        "completion": "pass"
+      },
+      "resources": {
+        "model_responses": 4,
+        "tool_actions": 3,
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "elapsed_ms": 1000,
+        "estimated_cost_micro_usd": 20,
+        "reserved_micro_usd": 100
+      },
+      "trace": [
+        {
+          "seq": 1,
+          "role": "controller",
+          "kind": "supplied_fixture",
+          "summary": "Authored synthetic example; no model or provider execution."
+        },
+        {
+          "seq": 3,
+          "role": "O1",
+          "kind": "completion",
+          "summary": "Illustrative recorded status; supplied judgments are separate."
+        }
+      ]
+    },
+    {
+      "episode_id": "synthetic-r1-route-fail",
+      "scenario_id": "R1",
+      "arm": "ordinary",
+      "trial": 2,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "completed",
+      "outcomes": {
+        "functional": "pass",
+        "workflow": "fail",
+        "evidence": "pass",
+        "completion": "pass"
+      },
+      "resources": {
+        "model_responses": 4,
+        "tool_actions": 3,
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "elapsed_ms": 1000,
+        "estimated_cost_micro_usd": null,
+        "reserved_micro_usd": 100
+      },
+      "trace": [
+        {
+          "seq": 1,
+          "role": "controller",
+          "kind": "supplied_fixture",
+          "summary": "Authored synthetic example; no model or provider execution."
+        },
+        {
+          "seq": 3,
+          "role": "O1",
+          "kind": "completion",
+          "summary": "Illustrative recorded status; supplied judgments are separate."
+        }
+      ]
+    },
+    {
+      "episode_id": "synthetic-r2-partial",
+      "scenario_id": "R2",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "partial",
+      "outcomes": {
+        "functional": "fail",
+        "workflow": "pass",
+        "evidence": "unknown",
+        "completion": "pass"
+      },
+      "resources": {
+        "model_responses": 4,
+        "tool_actions": 3,
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "elapsed_ms": 1000,
+        "estimated_cost_micro_usd": 20,
+        "reserved_micro_usd": 100
+      },
+      "trace": [
+        {
+          "seq": 1,
+          "role": "controller",
+          "kind": "supplied_fixture",
+          "summary": "Authored synthetic example; no model or provider execution."
+        },
+        {
+          "seq": 3,
+          "role": "O1",
+          "kind": "completion",
+          "summary": "Illustrative honest partial result."
+        }
+      ]
+    },
+    {
+      "episode_id": "synthetic-r3-provider",
+      "scenario_id": "R3",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "provider_error",
+      "outcomes": {
+        "functional": "unknown",
+        "workflow": "unknown",
+        "evidence": "unknown",
+        "completion": "unknown"
+      },
+      "resources": {
+        "model_responses": 4,
+        "tool_actions": 3,
+        "input_tokens": null,
+        "output_tokens": null,
+        "elapsed_ms": 1000,
+        "estimated_cost_micro_usd": null,
+        "reserved_micro_usd": 100
+      },
+      "trace": [
+        {
+          "seq": 1,
+          "role": "controller",
+          "kind": "supplied_fixture",
+          "summary": "Authored synthetic example; no model or provider execution."
+        },
+        {
+          "seq": 3,
+          "role": "O1",
+          "kind": "completion",
+          "summary": "Illustrative recorded status; supplied judgments are separate."
+        }
+      ]
+    },
+    {
+      "episode_id": "synthetic-c1-infra",
+      "scenario_id": "C1",
+      "arm": "structured_progress",
+      "trial": 1,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "infrastructure_error",
+      "outcomes": {
+        "functional": "unknown",
+        "workflow": "unknown",
+        "evidence": "unknown",
+        "completion": "unknown"
+      },
+      "resources": {
+        "model_responses": 4,
+        "tool_actions": 3,
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "elapsed_ms": 1000,
+        "estimated_cost_micro_usd": 20,
+        "reserved_micro_usd": 100
+      },
+      "trace": [
+        {
+          "seq": 1,
+          "role": "controller",
+          "kind": "supplied_fixture",
+          "summary": "Authored synthetic example; no model or provider execution."
+        },
+        {
+          "seq": 3,
+          "role": "O1",
+          "kind": "completion",
+          "summary": "Illustrative recorded status; supplied judgments are separate."
+        }
+      ]
+    },
+    {
+      "episode_id": "synthetic-c2-invalid",
+      "scenario_id": "C2",
+      "arm": "structured_progress",
+      "trial": 1,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "invalid",
+      "outcomes": {
+        "functional": "pass",
+        "workflow": "pass",
+        "evidence": "pass",
+        "completion": "pass"
+      },
+      "resources": {
+        "model_responses": 4,
+        "tool_actions": 3,
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "elapsed_ms": 1000,
+        "estimated_cost_micro_usd": 20,
+        "reserved_micro_usd": 100
+      },
+      "trace": [
+        {
+          "seq": 1,
+          "role": "controller",
+          "kind": "supplied_fixture",
+          "summary": "Authored synthetic example; no model or provider execution."
+        },
+        {
+          "seq": 3,
+          "role": "O1",
+          "kind": "completion",
+          "summary": "Illustrative recorded status; supplied judgments are separate."
+        }
+      ]
+    },
+    {
+      "episode_id": "synthetic-c3-unknown",
+      "scenario_id": "C3",
+      "arm": "structured_progress",
+      "trial": 1,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "completed",
+      "outcomes": {
+        "functional": "pass",
+        "workflow": "pass",
+        "evidence": "unknown",
+        "completion": "pass"
+      },
+      "resources": {
+        "model_responses": 4,
+        "tool_actions": 3,
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "elapsed_ms": 1000,
+        "estimated_cost_micro_usd": 20,
+        "reserved_micro_usd": 100
+      },
+      "trace": [
+        {
+          "seq": 1,
+          "role": "controller",
+          "kind": "supplied_fixture",
+          "summary": "Authored synthetic example; no model or provider execution."
+        },
+        {
+          "seq": 3,
+          "role": "O1",
+          "kind": "completion",
+          "summary": "Illustrative recorded status; supplied judgments are separate."
+        }
+      ]
+    },
+    {
+      "episode_id": "synthetic-c3-success",
+      "scenario_id": "C3",
+      "arm": "ordinary",
+      "trial": 1,
+      "stage": "development",
+      "evidence_kind": "synthetic_development",
+      "status": "completed",
+      "outcomes": {
+        "functional": "pass",
+        "workflow": "pass",
+        "evidence": "pass",
+        "completion": "pass"
+      },
+      "resources": {
+        "model_responses": 4,
+        "tool_actions": 3,
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "elapsed_ms": 1000,
+        "estimated_cost_micro_usd": 20,
+        "reserved_micro_usd": 100
+      },
+      "trace": [
+        {
+          "seq": 1,
+          "role": "controller",
+          "kind": "supplied_fixture",
+          "summary": "Authored synthetic example; no model or provider execution."
+        },
+        {
+          "seq": 3,
+          "role": "O1",
+          "kind": "completion",
+          "summary": "Illustrative recorded status; supplied judgments are separate."
+        }
+      ]
+    }
+  ]
+}

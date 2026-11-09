@@ -192,15 +192,65 @@ def evidence_outcome(
 
 
 def workflow_outcome(supplied_judgment):
-    """Workflow is only the supplied independent judgment; no derivation.
+    """Preserve the explicit external judgment API; missing stays unknown.
 
-    The current receipts do not implement an executable workflow predicate, so a
-    missing judgment remains unknown.  P0.3.2/P4.4 review must freeze a concrete
-    workflow predicate before a runtime row can fill pass/fail here.
+    Trusted runtime callers may separately derive the observable host predicate.
     """
     if supplied_judgment is None:
         return UNKNOWN
     return _outcome(supplied_judgment)
+
+
+def workflow_from_host_events(result, events, *, candidate_sha256,
+                              requirements_version, trusted=False):
+    """Observable approval/verification workflow, not semantic correctness.
+
+    Trust is granted only by the host composition. Supplied fixture/prose events
+    cannot satisfy executed review/check requirements. Missing stream evidence
+    stays unknown; a complete completed claim lacking requirements fails.
+    """
+    derivation = {"predicate": "host-workflow-0.1", "outcome": UNKNOWN,
+                  "review_event_id": None, "check_event_id": None,
+                  "finish_event_id": None, "candidate_sha256": candidate_sha256,
+                  "requirements_version": requirements_version}
+    if (not trusted or result.get("status") != "completed_claim"
+            or not isinstance(events, list) or not events
+            or type(result.get("event_count")) is not int
+            or len(events) != result["event_count"]):
+        return derivation
+    episode_id = result.get("episode_id")
+    for seq, event in enumerate(events, 1):
+        if (not isinstance(event, dict) or event.get("seq") != seq
+                or event.get("event_id") != "%s:event:%s" % (episode_id, seq)):
+            return derivation
+    finish = events[-1]
+    if (events[0].get("type") != "episode_start"
+            or finish.get("type") != "finish_claim"
+            or finish.get("role") != "O1" or finish.get("claimed_status") != "complete"
+            or finish.get("observed_candidate_sha256") != candidate_sha256
+            or finish.get("observed_requirements_version") != requirements_version
+            or result.get("current_candidate_sha256") != candidate_sha256
+            or result.get("current_requirements_version") != requirements_version):
+        return derivation
+    derivation["finish_event_id"] = finish["event_id"]
+    for event in events[:-1]:
+        if (event.get("type") == "reviewer_review" and event.get("role") == "R1"
+                and event.get("disposition") == "approve"
+                and event.get("open_findings") == 0
+                and event.get("claimed_source_sha256") == candidate_sha256
+                and event.get("observed_candidate_sha256") == candidate_sha256
+                and event.get("claimed_requirements_version") == requirements_version
+                and event.get("observed_requirements_version") == requirements_version):
+            derivation["review_event_id"] = event["event_id"]
+        if (event.get("type") == "check_result" and event.get("status") == "passed"
+                and type(event.get("exit_code")) is int and event["exit_code"] == 0
+                and event.get("cleanup") == "settled"
+                and event.get("candidate_sha256") == candidate_sha256
+                and event.get("requirements_version") == requirements_version):
+            derivation["check_event_id"] = event["event_id"]
+    derivation["outcome"] = (PASS if derivation["review_event_id"]
+                              and derivation["check_event_id"] else FAIL)
+    return derivation
 
 
 def supplied_component(value):
@@ -312,5 +362,5 @@ __all__ = [
     "denominator_summary", "eligible", "evidence_outcome", "excluded",
     "exclusion_reason", "functional_from_grade", "status_from_result",
     "strict_counts", "strict_outcome", "supplied_component",
-    "unchanged_input_repeats", "workflow_outcome",
+    "unchanged_input_repeats", "workflow_outcome", "workflow_from_host_events",
 ]

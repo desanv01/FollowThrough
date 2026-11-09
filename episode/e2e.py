@@ -162,7 +162,11 @@ def _safe_progress_events(run_root):
                 safe = {}
                 for key in ("type", "role", "status", "action", "elapsed_ms",
                             "evidence_id", "cleanup", "candidate_sha256",
-                            "requirements_version"):
+                            "requirements_version", "seq", "event_id", "exit_code",
+                            "disposition", "claimed_source_sha256",
+                            "claimed_requirements_version", "observed_candidate_sha256",
+                            "observed_requirements_version", "open_findings",
+                            "claimed_status"):
                     value = event.get(key)
                     if isinstance(value, (str, int)) and not isinstance(value, bool):
                         safe[key] = value
@@ -370,6 +374,7 @@ def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
         stage=stage,
         trial=trial,
         operation=operation,
+        trusted_host_events=live,
     )
     report_input = runtime_projection.project_report_input(dataset_id, [row])
     report = build_report(report_input)

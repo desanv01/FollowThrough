@@ -228,6 +228,53 @@ class ComponentPredicateTests(unittest.TestCase):
         self.assertEqual(outcomes.workflow_outcome("unknown"), "unknown")
 
 
+class HostWorkflowTests(unittest.TestCase):
+    def fixture(self):
+        sha = "a" * 64
+        events = [
+            {"type": "episode_start"},
+            {"type": "check_result", "status": "passed", "exit_code": 0,
+             "cleanup": "settled", "candidate_sha256": sha, "requirements_version": "v1"},
+            {"type": "reviewer_review", "role": "R1", "disposition": "approve",
+             "open_findings": 0, "claimed_source_sha256": sha,
+             "observed_candidate_sha256": sha, "claimed_requirements_version": "v1",
+             "observed_requirements_version": "v1"},
+            {"type": "finish_claim", "role": "O1", "claimed_status": "complete",
+             "observed_candidate_sha256": sha, "observed_requirements_version": "v1"},
+        ]
+        for seq, event in enumerate(events, 1):
+            event.update(seq=seq, event_id="wf:event:%s" % seq)
+        result = {"episode_id": "wf", "status": "completed_claim", "event_count": 4,
+                  "current_candidate_sha256": sha, "current_requirements_version": "v1"}
+        return result, events
+
+    def derive(self, result, events, trusted=True):
+        return outcomes.workflow_from_host_events(
+            result, events, candidate_sha256="a" * 64,
+            requirements_version="v1", trusted=trusted)["outcome"]
+
+    def test_complete_observed_workflow_passes_and_untrusted_stays_unknown(self):
+        result, events = self.fixture()
+        self.assertEqual(self.derive(result, events), "pass")
+        self.assertEqual(self.derive(result, events, trusted=False), "unknown")
+        self.assertEqual(self.derive(result, events[:-1]), "unknown")
+        result["status"] = "infrastructure_error"
+        self.assertEqual(self.derive(result, events), "unknown")
+
+    def test_missing_stale_open_and_fixture_evidence_fail_completed_workflow(self):
+        for change in ("missing_review", "stale_review", "stale_observation",
+                       "stale_check", "open_finding", "fixture_check"):
+            with self.subTest(change=change):
+                result, events = self.fixture()
+                if change == "missing_review": events[2]["type"] = "supplied_receipt"
+                if change == "stale_review": events[2]["claimed_source_sha256"] = "b" * 64
+                if change == "stale_observation": events[2]["observed_requirements_version"] = "v2"
+                if change == "stale_check": events[1]["requirements_version"] = "v2"
+                if change == "open_finding": events[2]["open_findings"] = 1
+                if change == "fixture_check": events[1]["type"] = "supplied_receipt"
+                self.assertEqual(self.derive(result, events), "fail")
+
+
 class AttemptAndRepeatTests(unittest.TestCase):
     def test_attempt_retention_has_no_automatic_retry(self):
         classified = outcomes.classify_attempt(

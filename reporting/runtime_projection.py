@@ -200,6 +200,7 @@ def project_episode(
     trial=1,
     workflow_judgment=None,
     operation=None,
+    trusted_host_events=False,
 ):
     """Build one exact report-input row and its binding record.
 
@@ -238,7 +239,14 @@ def project_episode(
         if binding["binding_match"]
         else outcomes.UNKNOWN
     )
-    workflow = outcomes.workflow_outcome(workflow_judgment)
+    derivation = outcomes.workflow_from_host_events(
+        result, events, candidate_sha256=source.get("candidate_sha256"),
+        requirements_version=source.get("requirements_version"),
+        trusted=trusted_host_events,
+    )
+    binding["workflow_derivation"] = derivation
+    workflow = (outcomes.workflow_outcome(workflow_judgment)
+                if workflow_judgment is not None else derivation["outcome"])
     evidence = outcomes.evidence_outcome(
         _check_receipts(events),
         grade.get("cleanup") if isinstance(grade, dict) else None,

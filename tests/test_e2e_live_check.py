@@ -106,6 +106,14 @@ class E2ELiveCheckTests(unittest.TestCase):
         )
         self.assertEqual(result["row"]["outcomes"]["evidence"], "pass")
         self.assertEqual(result["row"]["status"], "completed")
+        self.assertEqual(result["row"]["outcomes"]["workflow"], "pass")
+        self.assertEqual(result["report"]["episodes"][0]["strict_outcome"], "pass")
+        derivation = result["binding"]["workflow_derivation"]
+        self.assertIsNotNone(derivation["review_event_id"])
+        self.assertIsNotNone(derivation["check_event_id"])
+        safe = (self.run_root / "progress-events.jsonl").read_text()
+        self.assertNotIn('"summary"', safe)
+        self.assertNotIn('"findings"', safe)
         self.assertEqual(result["progress"]["cleanup"], "settled")
 
     def test_mismatched_protected_run_id_excludes_live_row(self):

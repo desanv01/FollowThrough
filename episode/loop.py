@@ -837,6 +837,9 @@ class _Engine:
         elif name == "review":
             evidence = self._append_event(
                 "reviewer_review", role="R1",
+                observed_candidate_sha256=self.current_candidate_sha256,
+                observed_requirements_version=self.requirements_version,
+                open_findings=sum(f["status"] == "open" for f in action["findings"]),
                 disposition=action["disposition"], summary=action["summary"],
                 findings=action["findings"],
                 evidence_ids=action["evidence_ids"],
@@ -1210,6 +1213,8 @@ class _Engine:
                 if normalized["name"] == "finish":
                     self._append_event(
                         "finish_claim", role="O1",
+                        observed_candidate_sha256=self.current_candidate_sha256,
+                        observed_requirements_version=self.requirements_version,
                         claimed_status=normalized["claimed_status"],
                         summary=normalized["summary"],
                         evidence_ids=normalized["evidence_ids"],

@@ -164,6 +164,11 @@ def _protocol_instruction(role, allowed_actions):
     ]
     for name in allowed_actions:
         lines.append("- " + _schema_text(name))
+    if "read" in allowed_actions:
+        lines.append(
+            'Valid JSON format example (a read action, not a task decision): '
+            '{"action":{"name":"read","filename":"TASK.md"}}'
+        )
     lines.extend([
         "Shared structures:",
         '- findings: array <=%d of {"id": string <=%d, "claim": string <=%d, '
@@ -313,7 +318,7 @@ class BudgetedModelPort:
         body = None
         local_error = None
         try:
-            body = _request_body(messages, None, self.max_tokens)
+            body = _request_body(messages, None, self.max_tokens, json_output=True)
         except DeepSeekError:
             local_error = "bridge_invalid_request"
         except Exception:
@@ -358,6 +363,7 @@ class BudgetedModelPort:
                 timeout_seconds=timeout,
                 max_response_bytes=MAX_RESPONSE_BYTES,
                 dispatch=True,
+                json_output=True,
             )
         except (BudgetedDeepSeekError, DeepSeekError, BudgetError) as raised:
             failure = (

@@ -288,12 +288,16 @@ def append_tool_results(messages, assistant_message, results: Mapping[str, str])
     ]
 
 
-def _request_body(messages, tools, max_tokens):
+def _request_body(messages, tools, max_tokens, *, json_output=False):
     _validate_messages(messages)
+    if type(json_output) is not bool:
+        raise DeepSeekError("invalid_request")
     payload = {
         "model": MODEL, "messages": list(messages), "stream": False,
         "thinking": {"type": "enabled"}, "reasoning_effort": "high", "max_tokens": max_tokens,
     }
+    if json_output:
+        payload["response_format"] = {"type": "json_object"}
     if tools is not None:
         if not isinstance(tools, (tuple, list)) or any(
             not isinstance(tool, dict) or tool.get("type") != "function"
@@ -409,7 +413,7 @@ class DeepSeekClient:
 
     def complete(
         self, messages, *, max_cost_usd, tools=None, max_tokens=64,
-        timeout_seconds=15, max_response_bytes=MAX_RESPONSE_BYTES,
+        timeout_seconds=15, max_response_bytes=MAX_RESPONSE_BYTES, json_output=False,
     ) -> Completion:
         """Make a single call after checking the local peak-price reservation."""
         budget = _decimal_budget(max_cost_usd)
@@ -421,7 +425,7 @@ class DeepSeekClient:
             raise DeepSeekError("missing_auth")
         if type(key) is not str or len(key) > 4096 or any(not 33 <= ord(char) <= 126 for char in key):
             raise DeepSeekError("invalid_auth")
-        body = _request_body(messages, tools, max_tokens)
+        body = _request_body(messages, tools, max_tokens, json_output=json_output)
         prompt_limit = 2 * len(body) + _PROMPT_OVERHEAD_TOKENS
         reservation = _token_cost(0, prompt_limit, max_tokens)
         if budget < reservation:

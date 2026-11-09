@@ -38,6 +38,12 @@ solution, development instruction, hidden evidence or controller-only schedule i
 added.
 
 The assistant's `content` must be exactly one JSON object `{"action": <object>}`.
+The bridge opts into DeepSeek JSON Output via `json_output=True`, serialized as
+`response_format={"type":"json_object"}` by the actual adapter. The protocol
+instruction includes a valid read-action JSON example for roles allowing reads.
+Other adapter and budgeted-client callers retain `json_output=False` by default,
+which omits `response_format`. This follows the
+[official JSON Output guide](https://api-docs.deepseek.com/guides/json_mode/).
 There is no Markdown-fence stripping, auto-repair, synthetic substitution or
 native/tool-call history support. Native tool-call completions are rejected as
 unsupported protocol. A parseable action object is passed to the loop unchanged, so
@@ -49,14 +55,15 @@ unparseable envelope is rejected here.
 The bridge uses the accepted adapter's pinned internals, deliberately documented as a
 version-coupled dependency:
 
-- `_request_body(messages, None, max_tokens)`
+- `_request_body(messages, None, max_tokens, json_output=True)`
 - `_PROMPT_OVERHEAD_TOKENS`
 - `_token_cost(0, 2 * len(body) + overhead, max_tokens)`
 
 The result is rounded **up** to whole micro-USD with `Decimal`. The bridge refuses
 before dispatch when that rounded reservation exceeds the explicit per-call cap, and
 passes the rounded reservation (not the whole cap) as `max_cost_usd` to
-`client.complete(operation_id, messages, dispatch=True, tools=None, ...)`. It does not
+`client.complete(operation_id, messages, dispatch=True, tools=None, json_output=True, ...)`.
+Thus reservation pricing and transport use the same JSON-output serialization. It does not
 hardcode prices, change `MODEL`, release ledger reservations or reserve unused cap.
 `request.operation_id` is preserved exactly; the wrapper + ledger remain the aggregate
 budget boundary.

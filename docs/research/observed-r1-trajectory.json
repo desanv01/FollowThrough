@@ -1,0 +1,90 @@
+{
+  "schema_version": "posthoc-observed-trajectory-0.1",
+  "scope": "Two posthoc protected assessments of the historical R1 initial candidate and saved model checkpoint; not a new model run or formal study.",
+  "source_commit": "8fdb226c34e4d8cfdd7e934460a5ba6b855a5d55",
+  "image": "python@sha256:d29f48a31a8b408ed19272ca1e7b10ebae13b240a27e862d3d4217c528e2e0c3",
+  "provider_calls": 0,
+  "bindings": [
+    {
+      "checkpoint_id": "initial",
+      "assessment_run_id": "q1-initial:run",
+      "candidate_sha256": "ab554e6153ab92a2b4fe3ddcfa58436ad373a78ebdff318e33dcd1908235ec87",
+      "receipt_file_sha256": "ddfbd4d4e61a8863f9981d37a8502bf783e717d8604fd620a339bac780f3da59",
+      "checks_passed": 6,
+      "checks_total": 8,
+      "cleanup": "settled",
+      "isolation_witness_verified": true,
+      "owned_container_absence_verified": true
+    },
+    {
+      "checkpoint_id": "cp19",
+      "assessment_run_id": "q1-cp19:run",
+      "candidate_sha256": "de04ff314d7d9d8d6961a9ca0420a4d77f9da8755089c6e2cde2d2a5ed0f6d11",
+      "receipt_file_sha256": "349fff3b0578b4e458d747c636f964db88cee52aa3796b059fe77a568b2a6e56",
+      "checks_passed": 8,
+      "checks_total": 8,
+      "cleanup": "settled",
+      "isolation_witness_verified": true,
+      "owned_container_absence_verified": true
+    }
+  ],
+  "trajectory": {
+    "schema_version": "trajectory-output-0.1",
+    "episode_id": "r1-followthrough-ordinary-001",
+    "evidence_kind": "protected_container_grading",
+    "snapshots": [
+      {
+        "checkpoint_id": "initial",
+        "seq": 1,
+        "candidate_sha256": "ab554e6153ab92a2b4fe3ddcfa58436ad373a78ebdff318e33dcd1908235ec87",
+        "requirements_version": "v1",
+        "elapsed_ms": null,
+        "model_responses": null,
+        "grade": {
+          "candidate_sha256": "ab554e6153ab92a2b4fe3ddcfa58436ad373a78ebdff318e33dcd1908235ec87",
+          "requirements_version": "v1",
+          "outcome": "fail",
+          "evidence_kind": "protected_container_grading"
+        }
+      },
+      {
+        "checkpoint_id": "cp19",
+        "seq": 2,
+        "candidate_sha256": "de04ff314d7d9d8d6961a9ca0420a4d77f9da8755089c6e2cde2d2a5ed0f6d11",
+        "requirements_version": "v1",
+        "elapsed_ms": null,
+        "model_responses": null,
+        "grade": {
+          "candidate_sha256": "de04ff314d7d9d8d6961a9ca0420a4d77f9da8755089c6e2cde2d2a5ed0f6d11",
+          "requirements_version": "v1",
+          "outcome": "pass",
+          "evidence_kind": "protected_container_grading"
+        }
+      }
+    ],
+    "segments": [
+      {
+        "requirements_version": "v1",
+        "start_seq": 1,
+        "end_seq": 2,
+        "snapshot_count": 2,
+        "known_pass": 1,
+        "known_fail": 1,
+        "unknown": 0,
+        "first_observed_correct": {
+          "checkpoint_id": "cp19",
+          "seq": 2,
+          "elapsed_ms": null,
+          "model_responses": null
+        },
+        "observed_regressions": []
+      }
+    ]
+  },
+  "limitations": [
+    "Two observed snapshots only; exact onset of correctness is unknown.",
+    "No workflow-arm comparison or causal inference.",
+    "Original episode remains infrastructure_error and excluded.",
+    "These grades were obtained after the original run with fresh assessment identities."
+  ]
+}

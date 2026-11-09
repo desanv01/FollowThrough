@@ -1,7 +1,7 @@
-# Run ledger viewer (P4-RUN-LEDGER/r2 candidate)
+# Run ledger viewer (T3 terminal fidelity correction)
 
-Status: **candidate saved-report viewer correction, not integrated or accepted.**
-This is the read-only T3/P4.5 saved-report portion corrected for review F1–F4.
+Status: **candidate T3 fidelity correction; independent review and native acceptance pending.**
+This is the actual read-only ANSI terminal viewer, with the approved T3 geometry.
 Live progress, execution, runtime preflight, browser report, theme/Unicode/resize
 refinement and the optional later palette review are outside this packet. Main
 owns independent review, the real-terminal rerun, integration and acceptance.
@@ -30,16 +30,24 @@ viewer adds no headline score. JSON mode is exactly the report object.
 
 ## TUI (T3 dark/cyan)
 
-The saved-report TUI follows the selected T3 mockup: dark terminal, cyan table
-header, selected attempt panel and visible key hints. The palette is kept in the
+The saved-report TUI uses a black base, explicit RGB cyan borders and table
+header, dark teal selection, a framed selected-attempt panel and cyan keyboard
+footer. Wide terminals (108 columns or more) use the actual boxed table; compact
+terminals use framed rows with the selected identity and outcomes below. The
+title explicitly labels the table's grade as strict. The palette is kept in the
 renderer (`PALETTES`, `cyan` default; `muted` retained for the optional
 post-phase review).
+
+Font size and family belong to the host terminal. Cascadia Mono or JetBrains
+Mono are recommendations; the viewer does not modify global terminal settings.
+The RGB black/cyan surface avoids relying on the host's 16-colour cyan theme.
+No sample rows, campaign cap or pooled costs/outcomes are added by the layout.
 
 ### Frame fitting (F1)
 
 Each redraw is fitted to both terminal columns and rows. The table is a bounded
 window centered on the selected attempt, so the selected row remains visible;
-the narrow-card layout marks it with `>`. Details, filter line and key hints are
+the compact framed layout marks it with `>`. Details, filter line and key hints are
 also included in the height budget. At 80×24 the pinned eight-attempt fixture
 fits in at most 24 lines of at most 80 columns before and after selection,
 filtering and evidence actions; taller/wider terminals show more rows. Very

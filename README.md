@@ -76,5 +76,5 @@ See the [adapter guide](adapters/README.md) and [provider access](docs/project/P
 
 ## Licence
 
-FollowThrough is released under GNU Affero General Public License version 3 only, AGPL-3.0-only. See [LICENSE](LICENSE), [NOTICE](NOTICE), and [contributions](docs/release/CONTRIBUTIONS.md). Third-party components retain their own licence terms.
+FollowThrough is released under MIT License. See [LICENSE](LICENSE), [NOTICE](NOTICE), and [contributions](docs/release/CONTRIBUTIONS.md). Third-party components retain their own licence terms.
 

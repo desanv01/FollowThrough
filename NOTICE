@@ -1,8 +1,7 @@
 FollowThrough
 Copyright (C) 2026 FollowThrough contributors
 
-This project is licensed under the GNU Affero General Public License,
-version 3 only (AGPL-3.0-only). The complete license text is in LICENSE.
+This project is licensed under the MIT License. The complete license text is in LICENSE.
 
 Third-party Rust crates remain under their own licenses; their attribution
 and license terms are retained by their upstream packages and are not

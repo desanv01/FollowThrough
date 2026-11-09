@@ -2,7 +2,7 @@
 name = "followthrough"
 version = "0.1.0"
 edition = "2021"
-license = "AGPL-3.0-only"
+license = "MIT"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

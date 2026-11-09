@@ -45,6 +45,48 @@ the user's ordinary PowerShell host is **pending**. Preflight success does not
 resolve this; perform the separately reviewed bounded native qualification before
 paid dispatch. Do not change daemon permissions or bypass executor restrictions.
 
+## Prepare portable campaign state without execution
+
+A clean checkout can create its own draft campaign registry and gate through the
+public setup command below. Use distinct existing source and trusted storage roots,
+a fresh campaign directory and a fresh run path. All paths must be absolute;
+source/task/reference/scenario trees and reparse paths are protected. Execute from
+the reviewed source checkout. The helper requires a clean Git source identity and
+never runs Docker, contacts a provider or reads a key.
+
+```powershell
+python -m episode.setup --prepare `
+  --source-root '<absolute clean reviewed source checkout>' `
+  --project-root '<absolute existing trusted project storage>' `
+  --campaign-root '<fresh absolute campaign directory>' `
+  --run-root '<fresh absolute run directory>' `
+  --campaign-id '<reviewed campaign id>' --episode-id '<fresh episode id>' `
+  --operation-id '<fresh operation id>' --run-id '<fresh logical run id>' `
+  --stage pilot --scenario-id R1 --arm ordinary --trial 1 `
+  --dataset-id '<reviewed dataset id>' --initialize-ledger
+```
+
+`--initialize-ledger` is explicit first-use creation through the accepted budget
+API with the fixed USD20 ceiling; it refuses any existing canonical ledger. Omit
+that flag when reusing the same existing campaign ledger: it is validated
+read-only, never reset. Setup does not need the key; the subsequent live path
+requires the designated ignored `.env.local` in trusted storage.
+
+The command creates an empty released resource registry (zero active operations,
+no operation started), `gate-draft.json` and the run's parent when needed. It does
+not create the run directory or an evaluated workspace. Existing campaign/run
+paths are refused; no prior campaign files or ledger are overwritten. Its
+`DRAFT_REQUIRES_REVIEW` gate binds current Git commit/tree, operation identities,
+current derived limits and canonical campaign ceiling. This draft is deliberately
+rejected by the paid live verifier.
+
+Separately qualify the real native host/runtime and review the exact gate,
+remaining budget and component/image hashes before approving the gate for the
+preflight/paid templates below. Empty released state means no operation has begun;
+it is not proof of Docker access, isolation, cleanup or model performance. Setup
+requires no private project-specific preparation artifacts and grants no runtime
+or spending authorization.
+
 ## Bind a fresh operation gate
 
 A reviewed JSON gate is required for each operation through `--g4-gate`. Its

@@ -627,9 +627,18 @@ def build_provider(project_root, campaign_id, *, transport=None, environ=None):
     )
 
 
-def build_check_port(executable, docker, output_root, *, timeout=150, runner=None):
+def build_check_port(executable, docker, output_root, *, timeout=150, runner=None,
+                     backend="rust"):
     """Lazy P2 seam: actual reviewed check bridge, never copied here."""
     from episode.check_bridge import LiveCheckBridge
+
+    if backend == "python":
+        from episode import python_check
+
+        executable = python_check.__file__
+        runner = runner or python_check.PythonCheckRunner()
+    elif backend != "rust":
+        raise LiveGateError("check_backend_invalid")
 
     return LiveCheckBridge(
         executable, docker, output_root, timeout=timeout, runner=runner,
@@ -729,7 +738,7 @@ def _file_sha256(path):
         raise LiveGateError("component_unreadable") from None
 
 
-def verify_g4_gate(gate_path, project_root, operation):
+def verify_g4_gate(gate_path, project_root, operation, *, check_backend="rust"):
     """Fail closed unless a reviewed G4 matches source, operation and bounds."""
     try:
         gate = json.loads(Path(gate_path).read_text(encoding="utf-8"))
@@ -789,6 +798,17 @@ def verify_g4_gate(gate_path, project_root, operation):
         raise LiveGateError("g4_campaign_mismatch")
     if budget.get("cap_microdollars") != int(CAP_USD) * 1_000_000:
         raise LiveGateError("g4_allowance_mismatch")
+    if check_backend == "python":
+        from episode import python_check
+
+        runtime = gate.get("runtime")
+        if (type(runtime) is not dict or runtime.get("check_backend") != "python"
+                or runtime.get("python_check_sha256") != _file_sha256(python_check.__file__)):
+            raise LiveGateError("g4_check_backend_mismatch")
+    elif check_backend != "rust":
+        raise LiveGateError("check_backend_invalid")
+    elif isinstance(gate.get("runtime"), dict) and gate["runtime"].get("check_backend", "rust") != "rust":
+        raise LiveGateError("g4_check_backend_mismatch")
     return gate
 
 
@@ -976,9 +996,10 @@ def run_live_r1(run_root, *, episode_id, model_port, check_port, grade_fn,
 
 
 def _require_components(args):
+    python_backend = getattr(args, "check_backend", "rust") == "python"
     missing = [
         name for name, value in (
-            ("check_executable", args.check_executable),
+            ("check_executable", True if python_backend else args.check_executable),
             ("docker", args.docker),
             ("shim_dir", args.shim_dir),
         ) if not value
@@ -991,6 +1012,8 @@ def _require_components(args):
         ("shim_dir", args.shim_dir, "dir"),
     )
     for name, value, kind in paths:
+        if name == "check_executable" and python_backend:
+            continue
         try:
             path = Path(os.path.abspath(os.fspath(value)))
         except TypeError:
@@ -1033,7 +1056,7 @@ def _verify_components(args, source_root, scenario_id):
         filename = "cache_shim.py" if scenario_id in ("C1", "C2", "C3") else "retry_shim.py"
         if not (shim / filename).is_file():
             raise LiveGateError("integration_components_invalid")
-    if args.check_executable_sha256:
+    if args.check_executable_sha256 and getattr(args, "check_backend", "rust") == "rust":
         if _file_sha256(args.check_executable) != args.check_executable_sha256.lower():
             raise LiveGateError("check_executable_identity_mismatch")
     if args.docker_sha256:
@@ -1058,6 +1081,7 @@ def main(argv=None):
     parser.add_argument("--initialize-ledger", action="store_true")
     parser.add_argument("--ledger", "--ledger-path", dest="ledger", default=None)
     parser.add_argument("--check-executable", default=None)
+    parser.add_argument("--check-backend", choices=("rust", "python"), default="rust")
     parser.add_argument("--docker", default=None)
     parser.add_argument("--shim-dir", default=None)
     parser.add_argument("--check-output-root", default=None)
@@ -1126,7 +1150,7 @@ def main(argv=None):
             raise LiveGateError("campaign_root_missing")
         if not args.g4_gate:
             raise LiveGateError("g4_gate_required")
-        verify_g4_gate(args.g4_gate, source, operation)
+        verify_g4_gate(args.g4_gate, source, operation, check_backend=args.check_backend)
         client = build_provider(project, args.campaign_id)
         lease = CampaignLease(
             campaign, operation_id=operation["operation_id"],
@@ -1165,6 +1189,7 @@ def main(argv=None):
             args.check_executable, args.docker,
             (Path(args.check_output_root) if args.check_output_root
              else run / "checks"),
+            backend=args.check_backend,
         )
         grade_fn = build_grade_fn(
             args.docker, args.shim_dir,

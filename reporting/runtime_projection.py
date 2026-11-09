@@ -167,6 +167,11 @@ def _binding(result, grade, *, source, operation=None):
     operation = operation if isinstance(operation, dict) else {}
     run_id = operation.get("run_id") or result.get("run_id")
     operation_id = operation.get("operation_id") or result.get("operation_id")
+    grade_run_id = grade.get("run_id") if isinstance(grade, dict) else None
+    protected = isinstance(grade, dict) and grade.get("evidence_kind") == "protected_container_grading"
+    run_bound = isinstance(run_id, str) and grade_run_id == run_id
+    if protected:
+        bound = bound and run_bound
     return {
         "schema_version": BINDING_SCHEMA,
         "episode_id": result.get("episode_id"),
@@ -175,6 +180,8 @@ def _binding(result, grade, *, source, operation=None):
         "candidate_sha256": source_candidate,
         "current_candidate_sha256": result_candidate,
         "grade_candidate_sha256": grade_candidate,
+        "grade_run_id": grade_run_id,
+        "run_binding_match": run_bound if protected else None,
         "requirements_version": source_version,
         "current_requirements_version": result_version,
         "grade_requirements_version": grade_version,

@@ -120,14 +120,23 @@ def summarize_progress(meta, events, result=None):
         if isinstance(evidence, str):
             evidence_ids.append(_sanitize(evidence))
     result = result if isinstance(result, dict) else {}
-    result_status = result.get("status") or meta.get("status")
+    # Final loop counters distinguish executed actions from attempts (e.g. a
+    # check that stopped at infrastructure). Events remain the fallback while running.
+    final_counts = result.get("counts")
+    if isinstance(final_counts, dict):
+        for key, source_key in (("model_responses", "model_responses_total"),
+                                ("tool_actions", "executed_actions")):
+            value = final_counts.get(source_key)
+            if type(value) is int and value >= 0:
+                counts[key] = value
+    result_status = meta.get("status") or result.get("status")
     if isinstance(result_status, str) and _SAFE_EVENT.fullmatch(result_status):
         state = result_status
     elif last_event_type is None:
         state = "no_events"
     else:
         state = "running_or_partial"
-    cleanup = result.get("cleanup") or meta.get("cleanup")
+    cleanup = meta.get("cleanup") or result.get("cleanup")
     if cleanup not in ("settled", "unknown", "not_created"):
         cleanup = "unknown"
     estimate = _optional_int(meta.get("estimated_cost_micro_usd"))

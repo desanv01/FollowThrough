@@ -30,6 +30,7 @@ def real_check(request, cleanup="settled"):
 def protected_grade(candidate_sha, candidate_path):
     return {
         "candidate_sha256": candidate_sha,
+        "run_id": "r6-check-call:run",
         "requirements_version": "v1",
         "status": "passed",
         "functional_pass": True,
@@ -85,6 +86,40 @@ class E2ELiveCheckTests(unittest.TestCase):
             {"controller", "O1", "W1"},
         )
         self.assertTrue((self.run_root / "protected-grade.json").is_file())
+        self.assertEqual(result["progress"]["cleanup"], "settled")
+        self.assertEqual(result["progress"]["counts"]["tool_actions"],
+                         result["row"]["resources"]["tool_actions"])
+        self.assertEqual(result["binding"]["grade_run_id"], self.operation["run_id"])
+        self.assertTrue(result["binding"]["run_binding_match"])
+        self.assertEqual(result["envelope"]["evidence_kind"], "real_provider_episode")
+        saved = json.loads((self.run_root / "driver.json").read_text())
+        self.assertEqual(saved["evidence_kind"], "real_provider_episode")
+
+    def test_live_passed_receipts_retain_evidence_binding_in_report(self):
+        def passed_check(request):
+            return dict(real_check(request), status="passed", exit_code=0)
+        result = e2e.run_scenario_smoke(
+            self.run_root, episode_id="r6-check-call",
+            model_port=scripted_port(self.run_root), check_port=passed_check,
+            grade_fn=protected_grade, live=True, operation=self.operation,
+            check_evidence_kind="real_container_check",
+        )
+        self.assertEqual(result["row"]["outcomes"]["evidence"], "pass")
+        self.assertEqual(result["row"]["status"], "completed")
+        self.assertEqual(result["progress"]["cleanup"], "settled")
+
+    def test_mismatched_protected_run_id_excludes_live_row(self):
+        def wrong_run(candidate_sha, candidate_path):
+            return dict(protected_grade(candidate_sha, candidate_path), run_id="other:run")
+        result = e2e.run_scenario_smoke(
+            self.run_root, episode_id="r6-check-call",
+            model_port=scripted_port(self.run_root),
+            check_port=real_check, grade_fn=wrong_run, live=True,
+            operation=self.operation, check_evidence_kind="real_container_check",
+        )
+        self.assertEqual(result["row"]["status"], "invalid")
+        self.assertFalse(result["binding"]["run_binding_match"])
+        self.assertEqual(set(result["row"]["outcomes"].values()), {"unknown"})
 
     def test_live_synthetic_and_synthetic_real_provenance_are_refused(self):
         with self.assertRaises(e2e.E2EError) as live:

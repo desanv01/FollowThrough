@@ -161,7 +161,8 @@ def _safe_progress_events(run_root):
                     continue
                 safe = {}
                 for key in ("type", "role", "status", "action", "elapsed_ms",
-                            "evidence_id"):
+                            "evidence_id", "cleanup", "candidate_sha256",
+                            "requirements_version"):
                     value = event.get(key)
                     if isinstance(value, (str, int)) and not isinstance(value, bool):
                         safe[key] = value
@@ -175,7 +176,7 @@ def _safe_progress_events(run_root):
 
 
 def _write_progress(run_root, result, episode_id, stage, evidence_kind,
-                    source, operation, status_override=None):
+                    source, operation, status_override=None, cleanup="unknown"):
     events = _safe_progress_events(run_root)
     event_path = Path(run_root) / "progress-events.jsonl"
     with event_path.open("w", encoding="utf-8", newline="") as handle:
@@ -196,7 +197,7 @@ def _write_progress(run_root, result, episode_id, stage, evidence_kind,
         "report_path": str(Path(run_root) / "report.md"),
         "estimated_cost_micro_usd": operation.get("estimated_cost_micro_usd"),
         "reserved_micro_usd": operation.get("reserved_micro_usd"),
-        "cleanup": (result.get("cleanup") if isinstance(result, dict) else None),
+        "cleanup": cleanup,
         "status": status_override or (
             result.get("status") if isinstance(result, dict) else None
         ),
@@ -277,6 +278,7 @@ def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
         model_port=model_port,
         check_port=capture_check,
         check_evidence_kind=check_evidence_kind,
+        evidence_kind=("real_provider_episode" if live else "synthetic_episode_control"),
     )
     if envelope.get("status") != "episode_returned":
         return {"envelope": envelope, "episode_id": episode_id,
@@ -386,7 +388,8 @@ def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
         )
     (run_root / "report.md").write_text(render_markdown(report), encoding="utf-8")
     progress_state = _write_progress(
-        run_root, result, episode_id, stage, evidence_kind, source, operation
+        run_root, result, episode_id, stage, evidence_kind, source, operation,
+        cleanup=("settled" if grade.get("cleanup") == "settled" else "unknown"),
     )
     return {
         "envelope": envelope,

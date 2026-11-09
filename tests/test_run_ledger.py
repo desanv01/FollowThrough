@@ -7,6 +7,7 @@ synthetic test-only data; no live/provider/execution evidence is involved.
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import unittest
@@ -146,6 +147,34 @@ class FailFirstWrite(TtyOutput):
 
 
 class LedgerTests(unittest.TestCase):
+    def test_wide_t3_rgb_framed_surface(self):
+        state = {"selected_id": REPORT["episodes"][0]["episode_id"],
+                 "filter": "", "filter_input": None, "evidence": False}
+        frame = render_screen(REPORT, state, width=140, height=30)
+        plain = re.sub(r"\x1b\[[0-9;]*m", "", frame)
+        self.assertIn("\x1b[48;2;0;0;0m", frame)
+        self.assertIn("\x1b[38;2;0;231;235m", frame)
+        self.assertIn("\x1b[48;2;0;101;111m", frame)
+        self.assertIn("┌" + "─" * 138 + "┐", plain)
+        self.assertIn("PROV/STAGE", plain)
+        self.assertIn("GRADE=strict", plain)
+        self.assertIn("SELECTED ATTEMPT / " + state["selected_id"], plain)
+        self.assertIn("j/k move", plain)
+        self.assertEqual(len(plain.splitlines()), 30)
+        self.assertTrue(all(len(line) == 140 for line in plain.splitlines()))
+
+    def test_compact_t3_frame_full_selected_identity_and_outcomes(self):
+        state = {"selected_id": REPORT["episodes"][0]["episode_id"],
+                 "filter": "", "filter_input": None, "evidence": False}
+        plain = render_screen(REPORT, state, width=80, height=24, color=False)
+        self.assertIn("┌" + "─" * 78 + "┐", plain)
+        self.assertIn("SELECTED ATTEMPT / " + state["selected_id"], plain)
+        for label in ("Functional=", "Workflow=", "Evidence=", "Completion=",
+                      "Trial:", "Elapsed:", "Estimated cost", "Reserved"):
+            self.assertIn(label, plain)
+        self.assertEqual(len(plain.splitlines()), 24)
+        self.assertTrue(all(len(line) == 80 for line in plain.splitlines()))
+
     def test_text_mode_uses_fixture_and_distinct_labels(self):
         text = render_text(REPORT, width=120)
         self.assertIn("synthetic-report-contract-v0.1", text)

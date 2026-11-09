@@ -32,13 +32,15 @@ GRADE_LABELS = {
 PALETTES = {
     "cyan": {
         "reset": "\x1b[0m",
-        "header": "\x1b[30;46m",
-        "accent": "\x1b[96m",
-        "selected": "\x1b[30;46m",
+        "header": "\x1b[48;2;0;222;225m\x1b[38;2;0;0;0m",
+        "accent": "\x1b[38;2;0;231;235m",
+        "selected": "\x1b[48;2;0;101;111m\x1b[38;2;245;255;255m",
+        "footer": "\x1b[38;2;0;231;235m",
         "warn": "\x1b[93m",
         "muted": "\x1b[90m",
     },
     "muted": {
+        "footer": "\x1b[36m",
         "reset": "\x1b[0m",
         "header": "\x1b[30;46m",
         "accent": "\x1b[36m",
@@ -545,68 +547,83 @@ def _filtered_state_rows(report, state):
 
 
 def _render_screen(report, state, width, height, color, palette_name):
-    headers = _header_lines(report, width, color, palette_name)
-    rows, visible = _filtered_state_rows(report, state)
-    selected = _row_by_id(rows, state["selected_id"])
-    if selected is not None and visible and selected in visible:
-        details = _detail_lines(
-            selected, width, state["evidence"], color, palette_name
-        )
-    else:
-        details = [_fit("No attempt selected.", width)]
+    """Actual framed T3 terminal surface; report/text/JSON semantics unchanged."""
+    palette = PALETTES[palette_name]
+    inner = width - 4
+    base = "\x1b[48;2;0;0;0m\x1b[38;2;235;241;242m" if color else ""
+    accent = palette["accent"] if color else ""
 
+    def paint(text, style=""):
+        return base + style + text + ("\x1b[0m" if color else "")
+
+    def edge(left, right):
+        return paint(left + "─" * (width - 2) + right, accent)
+
+    def cell(text, style=""):
+        return (paint("│", accent) + paint(" " + _pad(text, inner) + " ", style)
+                + paint("│", accent))
+
+    rows, visible = _filtered_state_rows(report, state)
+    selected = _row_by_id(visible, state["selected_id"])
+    headers = _header_lines(report, width, False, palette_name)
+    lines = [paint(_pad(headers[0] + "    GRADE=strict", width), accent)]
+    lines.extend(paint(_pad(line, width)) for line in headers[1:])
+    if selected is None:
+        details = ["No attempt selected."]
+    else:
+        details = _wrap("SELECTED ATTEMPT / " + selected["episode_id"], inner)
+        legacy = _detail_lines(selected, inner, state["evidence"], False, palette_name)
+        if state["evidence"]:
+            details.extend(legacy[1:])
+        else:
+            resources = selected["episode"]["resources"]
+            details.extend(legacy[1:6])
+            details.extend(_wrap(
+                "Resources: calls=%s tool_actions=%s input_tokens=%s output_tokens=%s"
+                % tuple(_fmt_value(resources[key]) for key in (
+                    "model_responses", "tool_actions", "input_tokens", "output_tokens"
+                )), inner))
+            details.extend(legacy[7:10])
+    filter_line = None
     if state["filter_input"] is not None:
         filter_line = "Filter (enter apply, esc cancel): %s_" % state["filter_input"]
     elif state["filter"]:
         filter_line = "Filter: %s (%d matches)" % (state["filter"], len(visible))
-    else:
-        filter_line = None
-    tail = [""]
-    if filter_line is not None:
-        tail.extend(_wrap(filter_line, width))
-    tail.extend(_footer_lines(report, width))
-    tail.extend(_wrap(HINTS, width))
-
-    fixed = len(headers) + 1 + len(tail) + 1  # header + blank + tail + blank
-    table_detail_room = max(1, height - fixed)
-    detail_budget = min(len(details), max(3, table_detail_room - 2))
-    table_room = table_detail_room - detail_budget - 1
-    while table_room < 3 and detail_budget > 3:
-        detail_budget -= 1
-        table_room += 1
-    if table_room < 1:
-        detail_budget = max(0, table_detail_room - 2)
-        table_room = max(1, table_detail_room - detail_budget - 1)
-    details = details[: max(1, detail_budget)]
-
+    if filter_line:
+        lines.append(paint(_pad(filter_line, width), accent))
+    # Preserve selected details, then spend remaining height on table rows.
+    table_budget = max(2, height - len(lines) - len(details) - 6)
+    lines.append(edge("┌", "┐"))
     if not rows:
-        table_block = [_fit("No attempts in this report.", width)]
+        table = [("No attempts in this report.", "")]
     elif not visible:
-        table_block = [_fit("No attempts match filter.", width)]
+        table = [("No attempts match filter.", "")]
+    elif width >= 108:
+        widths, labels, keys = _table_widths(visible, inner)
+        table = [("  ".join(_pad(label, widths[i]) for i, label in enumerate(labels)),
+                  palette["header"] if color else "")]
+        for row in _window(visible, state["selected_id"], max(1, table_budget - 1)):
+            text = "  ".join(_pad(row[key], widths[i]) for i, key in enumerate(keys))
+            table.append((text, palette["selected"] if color and row is selected else ""))
     else:
-        table_block = _table_lines(
-            visible,
-            state["selected_id"],
-            width,
-            color,
-            palette_name,
-            max_rows=max(1, table_room),
-        )
-
-    lines = list(headers) + [""] + table_block + [""] + details + tail
-    # Hard fit if a very short/narrow terminal makes the reserved blocks large.
-    while len(lines) > height and len(details) > 1:
-        details.pop()
-        lines = list(headers) + [""] + table_block + [""] + details + tail
-    while len(lines) > height and len(table_block) > 1:
-        table_block.pop()
-        lines = list(headers) + [""] + table_block + [""] + details + tail
-    while len(lines) > height and len(headers) > 1:
-        headers.pop()
-        lines = list(headers) + [""] + table_block + [""] + details + tail
-    if len(lines) > height:
-        lines = lines[:height]
-    return "\n".join(lines)
+        table = [("ID / SCENARIO                         STATE / GRADE (strict)",
+                  palette["header"] if color else "")]
+        for row in _window(visible, state["selected_id"], max(1, table_budget - 1)):
+            text = ("> " if row is selected else "  ") + row["episode_id"]
+            text += "  " + row["scenario_id"] + "  " + row["status"] + " / " + row["grade"]
+            table.append((text, palette["selected"] if color and row is selected else ""))
+    lines.extend(cell(text, style) for text, style in table[:table_budget])
+    lines.append(edge("└", "┘"))
+    lines.append(edge("┌", "┐"))
+    room = max(1, height - len(lines) - 3)
+    lines.extend(cell(detail, accent if index == 0 else "")
+                 for index, detail in enumerate(details[:room]))
+    while len(lines) < height - 3:
+        lines.append(cell(""))
+    lines.append(edge("├", "┤"))
+    lines.append(cell(HINTS, palette["footer"] if color else ""))
+    lines.append(edge("└", "┘"))
+    return "\n".join(lines[:height])
 
 
 def render_screen(

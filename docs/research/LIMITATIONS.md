@@ -52,7 +52,7 @@ The adapter does not implement a cumulative campaign budget. Per-request reserva
 
 - Repository baseline is published on `main` at the pinned commit; GitHub is the source-delivery route. No CI workflow is configured. CI is planned as a later sequential P6 assignment, not part of this packet.
 - No Docker operation, deployment, desktop application or local GPU hosting is part of the current evidence path for the core CLI benchmark.
-- The project is licensed under AGPL-3.0-only (see `LICENSE` and `NOTICE`). Third-party code assets retain their own terms; no third-party code or assets were copied into the fixtures.
+- The project is licensed under MIT (see `LICENSE` and `NOTICE`). Third-party code assets retain their own terms; no third-party code or assets were copied into the fixtures.
 - Private coordination, `.env` files, raw provider traces and unrelated material must stay out of any public package.
 - The deadline, ZIP size, root-README and ≤5-minute video limits in earlier planning are **historical and were not reverified** by this preparation pass. Eligibility, consent and field requirements are unverified. They must be rechecked against the official rules before any submission.
 
@@ -72,7 +72,7 @@ The frozen method ([METHODS.md](METHODS.md), “Data freeze and reporting”) se
 | Budget work delivered but not accepted | P3-BUDGET/r3 correction delivered, reviewed and accepted |
 | No executor, role loop or frozen campaign | Integrated executor, frozen scenarios/prompts/settings and a separately authorised campaign |
 | No formal results or reporting | Protected grading, all attempt dispositions, sanitised results and Main acceptance of claims |
-| No video or submission package | Licence is AGPL-3.0-only; recorded ≤5-minute video; eligibility/rules recheck; authorised submission |
+| No video or submission package | Licence is MIT; recorded ≤5-minute video; eligibility/rules recheck; authorised submission |
 | Six related configurations only | A broader, separately designed study — not implied by this release |
 
 Nothing in this document grants permission to run paid evaluation, publish, upload or submit. Those remain Main/user decisions under the project controls.

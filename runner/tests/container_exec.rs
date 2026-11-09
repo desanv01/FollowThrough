@@ -349,7 +349,9 @@ impl CommandRunner for FakeDocker {
         match rest.first().map(String::as_str) {
             Some("info") => {
                 if self.scenario.info_fail {
-                    return outcome(1, b"info failed");
+                    let mut failure = outcome(1, b"");
+                    failure.stderr = stream(&b"private setup diagnostic;".repeat(256));
+                    return failure;
                 }
                 json_outcome(&json!({
                     "OSType": self.scenario.daemon_os,
@@ -910,6 +912,30 @@ fn image_os_architecture_and_digest_prerequisites_refuse_before_create() {
         let receipt = read_receipt(&execution);
         assert_eq!(receipt["cleanup"]["state"], "settled");
     }
+}
+
+#[test]
+fn setup_stderr_is_retained_bounded_only_in_private_command_receipt() {
+    let fixture = Fixture::new("setup-diagnostics");
+    let (execution, fake) = run_scenario(&fixture, Scenario {
+        info_fail: true,
+        ..Scenario::default()
+    });
+    assert_eq!(execution.status, Status::InfrastructureError);
+    assert!(fake.state().create_argv.is_empty());
+    let receipt = read_receipt(&execution);
+    let info = receipt["commands"].as_array().unwrap().iter()
+        .find(|command| command["name"] == "info").unwrap();
+    let excerpt = info["stderr_excerpt"].as_str().unwrap();
+    assert!(excerpt.starts_with("private setup diagnostic;"));
+    assert_eq!(excerpt.len(), 4096);
+    assert!(info["stderr_bytes"].as_u64().unwrap() > 4096);
+    assert_eq!(info["exit_code"], 1);
+    assert_eq!(info["direct_child_reaped"], true);
+    assert_eq!(info["reader_settled"], true);
+    assert_eq!(receipt["cleanup"]["state"], "settled");
+    assert!(receipt["stderr_file"].is_null());
+    assert!(!fixture.output.join("stderr.txt").exists());
 }
 
 #[test]

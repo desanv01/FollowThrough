@@ -641,7 +641,7 @@ def build_grade_fn(docker, shim_dir, *, scenario_id="R1",
                    run_id=None, evidence_kind="protected_container_grading"):
     """Lazy P2 seam: qualified Retry or Cache grade for one candidate."""
     family = "retry" if scenario_id in ("R1", "R2", "R3") else "cache"
-    token = re.sub(r"[^A-Za-z0-9_.-]", "-", str(run_id or "p3-run"))[:64]
+    token = _valid_episode_id(run_id or "p3-run")
 
     def grade_fn(candidate_sha256, candidate_path):
         if family == "cache":

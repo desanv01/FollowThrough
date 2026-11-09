@@ -966,12 +966,18 @@ class LiveCompositionTest(unittest.TestCase):
         )
         self.assertIn("ledger_initialization", err.getvalue())
 
+    def test_grade_session_keeps_logical_id_and_uses_docker_safe_name(self):
+        from episode.protected_session import DockerSession
+        session = DockerSession("docker", self.root, self.root, "run:retry")
+        self.assertEqual(session.run_id, "run:retry")
+        self.assertRegex(session.name, r"^ft-grade-[0-9a-f]{32}-[0-9a-f]{8}$")
+
     def test_grade_fn_forwards_version_checkpoint_and_cache_shim(self):
         from episode import protected_cache, protected_session
 
         with mock.patch.object(
             protected_session, "DockerSession", return_value=object()
-        ), mock.patch.object(
+        ) as retry_session, mock.patch.object(
             protected_session, "grade_session", return_value={}
         ) as retry_grade:
             retry = build_grade_fn(
@@ -980,12 +986,13 @@ class LiveCompositionTest(unittest.TestCase):
                 run_id="run:retry",
             )
             retry(SHA, self.root)
+        self.assertEqual(retry_session.call_args.args[3], "run:retry")
         self.assertEqual(retry_grade.call_args.kwargs["requirements_version"], "v1")
         self.assertEqual(retry_grade.call_args.kwargs["checkpoint_id"], "cp-1")
 
         with mock.patch.object(
             protected_cache, "cache_session", return_value=object()
-        ), mock.patch.object(
+        ) as cache_session, mock.patch.object(
             protected_cache, "grade_cache", return_value={}
         ) as cache_grade:
             cache = build_grade_fn(
@@ -994,6 +1001,7 @@ class LiveCompositionTest(unittest.TestCase):
                 run_id="run:cache",
             )
             cache(SHA, self.root)
+        self.assertEqual(cache_session.call_args.args[3], "run:cache")
         self.assertEqual(cache_grade.call_args.kwargs["requirements_version"], "v2")
         self.assertTrue(cache_grade.called)
 

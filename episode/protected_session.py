@@ -8,6 +8,7 @@ replies, never authority for durable state or a pass.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -222,7 +223,9 @@ class DockerSession(Session):
         self.candidate = str(Path(candidate).resolve())
         self.shim_dir = str(Path(shim_dir).resolve())
         self.run_id = run_id
-        self.name = "ft-grade-" + run_id + "-" + uuid.uuid4().hex[:8]
+        # Keep the logical identity exact; Docker names have a narrower alphabet.
+        name_token = hashlib.sha256(run_id.encode("utf-8")).hexdigest()[:32]
+        self.name = "ft-grade-" + name_token + "-" + uuid.uuid4().hex[:8]
         self.image = image
         self.timeout = timeout
         self.shim_name = shim_name

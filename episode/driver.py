@@ -186,32 +186,44 @@ def run_scenario(
     model_port,
     check_port,
     check_evidence_kind="synthetic_check",
+    evidence_kind=EVIDENCE_KIND,
     cancelled=None,
     monotonic=None,
 ):
-    """Prepare, configure and run one offline synthetic episode."""
+    """Prepare and run injected host ports; default CLI evidence stays synthetic.
+
+    The trusted live composition supplies its provenance explicitly. This label
+    records the caller's execution context; it does not authenticate a provider.
+    """
+    if evidence_kind not in (EVIDENCE_KIND, "real_provider_episode"):
+        return _envelope("preparation_error", None, None, None, "invalid_evidence_kind")
+    def execution_envelope(*args):
+        envelope = _envelope(*args)
+        envelope["evidence_kind"] = evidence_kind
+        return envelope
+
     if scenario_id not in SCENARIOS:
-        return _envelope("preparation_error", None, None, None, "invalid_scenario")
+        return execution_envelope("preparation_error", None, None, None, "invalid_scenario")
     if arm not in ARMS:
-        return _envelope("preparation_error", None, None, None, "invalid_arm")
+        return execution_envelope("preparation_error", None, None, None, "invalid_arm")
     if not callable(model_port) or not callable(check_port):
-        return _envelope("preparation_error", None, None, None, "ports_not_callable")
+        return execution_envelope("preparation_error", None, None, None, "ports_not_callable")
     if cancelled is not None and not callable(cancelled):
-        return _envelope("preparation_error", None, None, None, "cancelled_not_callable")
+        return execution_envelope("preparation_error", None, None, None, "cancelled_not_callable")
     if monotonic is not None and not callable(monotonic):
-        return _envelope("preparation_error", None, None, None, "monotonic_not_callable")
+        return execution_envelope("preparation_error", None, None, None, "monotonic_not_callable")
 
     try:
         project_resolved, run_resolved, prepare_module = _validate_run_root(
             project_root, run_root
         )
     except DriverError as exc:
-        return _envelope("preparation_error", None, None, None, exc.code)
+        return execution_envelope("preparation_error", None, None, None, exc.code)
 
     try:
         os.mkdir(run_resolved)
     except OSError:
-        return _envelope("preparation_error", None, None, None, "run_root_create_failed")
+        return execution_envelope("preparation_error", None, None, None, "run_root_create_failed")
 
     package_path = run_resolved / "package"
     episode_path = run_resolved / "episode"
@@ -220,7 +232,7 @@ def run_scenario(
     except Exception as exc:
         code = _bounded_error(exc, prepare_module)
         package = package_path if package_path.exists() else None
-        envelope = _envelope("preparation_error", None, package, None, code)
+        envelope = execution_envelope("preparation_error", None, package, None, code)
         _write_driver_record(run_resolved, envelope)
         return envelope
 
@@ -235,7 +247,7 @@ def run_scenario(
         config["check_evidence_kind"] = check_evidence_kind
     except Exception as exc:
         code = _bounded_error(exc)
-        envelope = _envelope("preparation_error", None, package_path, None, code)
+        envelope = execution_envelope("preparation_error", None, package_path, None, code)
         _write_driver_record(run_resolved, envelope)
         return envelope
 
@@ -250,15 +262,16 @@ def run_scenario(
     except Exception as exc:
         code = _bounded_error(exc)
         episode = episode_path if episode_path.exists() else None
-        envelope = _envelope("preparation_error", None, package_path, episode, code)
+        envelope = execution_envelope("preparation_error", None, package_path, episode, code)
         _write_driver_record(run_resolved, envelope)
         return envelope
 
-    envelope = _envelope(
+    envelope = execution_envelope(
         "episode_returned", result, package_path, episode_path, None
     )
+    envelope["evidence_kind"] = evidence_kind
     if not _write_driver_record(run_resolved, envelope):
-        return _envelope(
+        return execution_envelope(
             "preparation_error", None, package_path, episode_path, "driver_record_failed"
         )
     return envelope

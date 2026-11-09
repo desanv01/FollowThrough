@@ -1,16 +1,16 @@
 # Container check executor (source)
 
-Status: **synthetic_executor_control only**. `P2-EXECUTOR/r1` implements the real
-Docker CLI lifecycle behind an injected command boundary. The production CLI uses a
-real subprocess wrapper; offline tests inject a scripted boundary or an owned fake
-executable. This assignment does **not** invoke installed Docker, real containers,
-candidate Python, providers or a real daemon. It is not isolation qualification,
-not cleanup qualification and not protected grading. Actual Docker/runtime
-qualification remains Main-owned.
+Status: production executor source and focused synthetic controls are reviewed.
+The runtime/report fixes in PRs 79–83 passed hosted checks; this does not qualify
+native execution. Current Windows managed Rust-child Docker access fails before
+create with a named-pipe access denial while direct Docker probes work. Ordinary
+user PowerShell host qualification remains pending. Earlier authored native
+controls retain their original limited scope. See the
+[qualified evaluation guide](QUALIFIED-EVALUATION.md) before live use.
 
 ## Files
 
-Five proposed files only:
+Executor files:
 
 - `runner/src/container_exec.rs` Ã¢â‚¬â€ lifecycle, receipt, process wrapper, injectable boundary.
 - `runner/src/bin/container-check.rs` Ã¢â‚¬â€ production CLI.
@@ -165,13 +165,16 @@ architecture, container ID/name/owner token/attach facts, `public_check_exit`,
 per-command observations (argv, PID, exit/null, stream byte counts, timeout/
 overflow/cancel/spawn/reap/reader flags, elapsed), cleanup state/method/removal
 verification/detail, bounded stream file paths, elapsed, declared budget fields, and
-limitation strings. Raw Docker diagnostics are not retained; raw check streams are
-bounded host-only files outside the mount.
+limitation strings. Each command also retains a private `stderr_excerpt` bounded to 4096 UTF-8 bytes,
+while `stderr_bytes` remains the full observed count. Setup diagnostics stay in the
+private receipt and are never forwarded as agent-visible public-check output.
+Raw check streams are bounded host-only files outside the mount.
 
 ## Offline evidence
 
-`runner/tests/container_exec.rs` runs 19 integration tests plus the accepted
-planner's own namespace test; the bin harness runs that planner test too. They cover:
+`runner/tests/container_exec.rs` contains synthetic integration tests plus the
+accepted planner namespace test; the bin harness includes that planner test too.
+They cover:
 
 - successful check, nonzero check, and created/dead/OOM/error/missing-times/default-
   zero states refusing success;

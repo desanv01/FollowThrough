@@ -185,7 +185,9 @@ def _record_valid(record):
 
 
 def _validate_config(config):
-    if type(config) is not dict or set(config) != CONFIG_KEYS:
+    if type(config) is not dict or set(config) not in (
+        CONFIG_KEYS, CONFIG_KEYS | {"episode_evidence_kind"}
+    ):
         raise EpisodeConfigError("invalid_config_keys")
     # Snapshot validated config and nested events so later caller mutation cannot
     # change bounds, scenarios or schedules.
@@ -207,6 +209,10 @@ def _validate_config(config):
         raise EpisodeConfigError("relative_path")
     if config["evidence_kind"] != EVIDENCE_KIND:
         raise EpisodeConfigError("invalid_evidence_kind")
+    if config.get("episode_evidence_kind", EVIDENCE_KIND) not in (
+        EVIDENCE_KIND, "real_provider_episode"
+    ):
+        raise EpisodeConfigError("invalid_episode_evidence_kind")
     if config["check_evidence_kind"] not in CHECK_EVIDENCE_KINDS:
         raise EpisodeConfigError("invalid_check_evidence_kind")
     bounds = (
@@ -300,6 +306,7 @@ class _Engine:
                 raise EpisodeConfigError("receipt_source_hash_mismatch")
         self.requirements_version = config["requirements_version"]
         self.check_evidence_kind = config["check_evidence_kind"]
+        self.episode_evidence_kind = config.get("episode_evidence_kind", EVIDENCE_KIND)
         self.current_candidate_sha256 = self.ws.initial_candidate_sha256
         self.initial_candidate_sha256 = self.ws.initial_candidate_sha256
         self.histories = {role: [] for role in ROLES}
@@ -355,7 +362,7 @@ class _Engine:
             "event_id": "%s:event:%d" % (self.episode_id, sequence),
             "seq": sequence,
             "elapsed_ms": self._elapsed_ms(),
-            "evidence_kind": EVIDENCE_KIND,
+            "evidence_kind": self.episode_evidence_kind,
             "type": event_type,
         }
         event.update(fields)
@@ -1096,6 +1103,11 @@ class _Engine:
             "independent semantic truth",
             "controller records are not sanitization-certified public traces",
         ]
+        if self.episode_evidence_kind == "real_provider_episode":
+            limitations[:2] = [
+                "host composition declares real provider ports; metadata is not independent authentication",
+                "check and protected-grade receipts separately establish actual execution and qualification",
+            ]
         if self.config["scenario_id"] == "C3":
             limitations.append(
                 "the authored v1 receipt is supplied fixture context, not an "
@@ -1103,7 +1115,7 @@ class _Engine:
             )
         result = {
             "schema_version": SCHEMA_VERSION,
-            "evidence_kind": EVIDENCE_KIND,
+            "evidence_kind": self.episode_evidence_kind,
             "episode_id": self.episode_id,
             "scenario_id": self.config["scenario_id"],
             "arm": self.arm,

@@ -6,7 +6,7 @@ import unittest
 import uuid
 from pathlib import Path
 
-from episode import e2e
+from episode import e2e, live
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRATCH = ROOT.parent / "e2e-scratch"
@@ -128,6 +128,69 @@ class E2ELiveCheckTests(unittest.TestCase):
         self.assertEqual(result["row"]["status"], "invalid")
         self.assertFalse(result["binding"]["run_binding_match"])
         self.assertEqual(set(result["row"]["outcomes"].values()), {"unknown"})
+
+    def test_no_public_check_completion_is_settled_workflow_failure(self):
+        def finish(request):
+            return {"action": {"name": "finish", "claimed_status": "complete",
+                               "summary": "control", "evidence_ids": [], "remaining": []},
+                    "usage": {"input_tokens": 1, "output_tokens": 1},
+                    "requested_model": "fixture", "returned_model": "fixture"}
+        def unused_check(request):
+            self.fail("no public check should be dispatched")
+        result, usage = live.run_live_r1(
+            self.run_root, episode_id="r6-check-call", model_port=finish,
+            check_port=unused_check, grade_fn=protected_grade,
+            operation=self.operation, live=True,
+        )
+        self.assertTrue(usage["cleanup_settled"])
+        self.assertTrue(result["grade_started"])
+        self.assertEqual(result["row"]["status"], "completed")
+        self.assertEqual(result["row"]["outcomes"]["functional"], "pass")
+        self.assertEqual(result["row"]["outcomes"]["workflow"], "fail")
+        self.assertEqual(result["row"]["outcomes"]["evidence"], "unknown")
+        self.assertEqual(result["report"]["episodes"][0]["strict_outcome"], "fail")
+        self.assertEqual(result["result"]["evidence_kind"], "real_provider_episode")
+        self.assertFalse(any("no live model" in item for item in result["result"]["limitations"]))
+        events = [json.loads(line) for line in
+                  (self.run_root / "episode" / "events.jsonl").read_text().splitlines()]
+        self.assertTrue(all(event["evidence_kind"] == "real_provider_episode" for event in events))
+
+    def test_attempted_check_without_receipt_remains_unknown_and_skips_grade(self):
+        def broken_check(request):
+            raise RuntimeError("injected check failure")
+        result, usage = live.run_live_r1(
+            self.run_root, episode_id="r6-check-call",
+            model_port=scripted_port(self.run_root), check_port=broken_check,
+            grade_fn=protected_grade, operation=self.operation, live=True,
+        )
+        self.assertFalse(result["grade_started"])
+        self.assertFalse(usage["cleanup_settled"])
+        self.assertEqual(result["grade_skipped_reason"], "check_receipt_missing")
+        self.assertEqual(result["row"]["status"], "infrastructure_error")
+
+    def test_later_check_missing_receipt_stays_unknown_and_skips_grade(self):
+        attempted = []
+        grades = []
+        def partial_check(request):
+            attempted.append(request)
+            if len(attempted) == 2:
+                raise RuntimeError("injected second check failure")
+            return dict(real_check(request), status="passed", exit_code=0)
+        def unused_grade(sha, path):
+            grades.append(sha)
+            return protected_grade(sha, path)
+        result, usage = live.run_live_r1(
+            self.run_root, episode_id="r6-check-call",
+            model_port=scripted_port(self.run_root), check_port=partial_check,
+            grade_fn=unused_grade, operation=self.operation, live=True,
+        )
+        self.assertEqual(len(attempted), 2)
+        self.assertEqual(grades, [])
+        self.assertFalse(result["grade_started"])
+        self.assertFalse(usage["cleanup_settled"])
+        self.assertEqual(result["progress"]["cleanup"], "unknown")
+        self.assertEqual(result["grade_skipped_reason"], "check_receipt_missing")
+        self.assertEqual(result["row"]["status"], "infrastructure_error")
 
     def test_live_synthetic_and_synthetic_real_provenance_are_refused(self):
         with self.assertRaises(e2e.E2EError) as live:

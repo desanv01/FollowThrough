@@ -73,6 +73,15 @@ class EpisodeDriverTests(unittest.TestCase):
             check_port=RefuseCheck(),
         )
 
+    def test_driver_refuses_unrecognized_episode_evidence_label(self):
+        envelope = driver_module.run_scenario(
+            OVERLAY, "R1", run_root=self.new_run("bad-label"), episode_id="bad-label",
+            arm="ordinary", limits=dict(LIMITS), model_port=lambda request: partial_finish(),
+            check_port=RefuseCheck(), evidence_kind="unverified-custom-label",
+        )
+        self.assertEqual(envelope["status"], "preparation_error")
+        self.assertEqual(envelope["error"], "invalid_evidence_kind")
+
     def test_all_six_partial_episode_envelopes(self):
         for scenario_id in ("R1", "R2", "R3", "C1", "C2", "C3"):
             calls = {"model": 0}

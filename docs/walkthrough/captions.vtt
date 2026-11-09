@@ -1,0 +1,130 @@
+WEBVTT
+
+00:00:00.370 --> 00:00:04.914
+A coding agent can repair a program before its completion evidence is ready.
+
+00:00:05.062 --> 00:00:11.995
+FollowThrough evaluates the repaired code, the workflow, verification evidence, and the completion claim separately.
+
+00:00:12.143 --> 00:00:18.247
+Consider a retried payment: one interrupted transaction can silently credit the same event twice.
+
+00:00:18.395 --> 00:00:23.886
+Or consider a cache checked against yesterday's requirements, while today's contract has changed.
+
+00:00:24.035 --> 00:00:30.316
+These are small software-maintenance tasks with consequences that a confident summary cannot resolve.
+
+00:00:31.159 --> 00:00:38.270
+The evaluation contains six scenarios across two original task families: Retry Processing and Preview Cache.
+
+00:00:38.418 --> 00:00:44.976
+They include incorrect starts, correct starts, changed requirements, and an explicitly supplied stale receipt.
+
+00:00:45.124 --> 00:00:50.477
+Ordinary and structured-progress arms share the same task requirements and resource bounds.
+
+00:00:50.625 --> 00:00:55.228
+An orchestrator delegates to a worker and requests an independent reviewer.
+
+00:00:55.376 --> 00:01:01.460
+The evaluated roles receive only the visible workspace, public checks, and permitted observations.
+
+00:01:01.608 --> 00:01:07.455
+Protected grading stays outside that workspace and runs the candidate in an isolated container.
+
+00:01:07.603 --> 00:01:13.391
+Source hashes and requirement versions bind each check or review to the code it actually covered.
+
+00:01:13.539 --> 00:01:18.991
+The report records four outcomes: functional correctness, workflow, evidence, and completion.
+
+00:01:19.139 --> 00:01:25.381
+A public smoke check is feedback. The independent protected grade determines functional correctness.
+
+00:01:26.223 --> 00:01:32.268
+Here is the actual command-line interface, using Python module commands from the repository.
+
+00:01:32.416 --> 00:01:39.093
+Preparation exports the selected scenario into a fresh workspace and preserves protected material outside it.
+
+00:01:39.241 --> 00:01:47.675
+Guarded execution requires an approved source identity, runtime configuration, budget ledger, and exclusive runtime lease.
+
+00:01:47.823 --> 00:01:55.211
+The explicit Python check backend has passed real authored positive and negative controls on this Windows Docker host.
+
+00:01:55.359 --> 00:02:02.964
+It verifies the image, read-only mounts, network restrictions, resource limits, and container identity before starting.
+
+00:02:03.112 --> 00:02:09.256
+After execution, it records the exit state, removes the owned container, and verifies absence.
+
+00:02:09.404 --> 00:02:15.784
+This terminal view reads saved results. It is a replay of recorded output, not a new model run.
+
+00:02:15.932 --> 00:02:21.759
+The T3 ledger lets an operator select an attempt, inspect its evidence, and filter the list.
+
+00:02:21.907 --> 00:02:28.465
+Notice the separate functional result and overall episode status. Unknown dimensions remain visible.
+
+00:02:28.614 --> 00:02:35.211
+The same records produce a portable read-only browser report, without a provider key or live execution.
+
+00:02:36.054 --> 00:02:41.506
+The recorded evidence shows useful progress, and it also shows the project's current limits.
+
+00:02:41.654 --> 00:02:48.488
+A posthoc protected assessment compared the initial Retry candidate with an actual saved model checkpoint.
+
+00:02:48.636 --> 00:02:53.338
+The initial source passed six of eight checks. The saved checkpoint passed all eight.
+
+00:02:53.486 --> 00:02:59.807
+Both assessments verified source identity, isolation, settled cleanup, and owned-container absence.
+
+00:02:59.955 --> 00:03:05.743
+That is an observed two-snapshot improvement, not proof of exactly when correctness first arose.
+
+00:03:05.891 --> 00:03:12.310
+In the latest pilot, the worker edited the candidate, and public checks and protected functional grading passed.
+
+00:03:12.459 --> 00:03:19.510
+The reviewer turn then failed strict JSON-action parsing, so the episode stopped with a provider-error classification.
+
+00:03:19.659 --> 00:03:26.473
+Workflow and completion remained unknown. We retain the attempt and exclude it from task-score denominators.
+
+00:03:26.622 --> 00:03:33.002
+This does not establish a coding-capability failure, and no formal workflow-arm comparison is claimed.
+
+00:03:33.844 --> 00:03:42.872
+The repository includes the original fixtures, authored positive and negative controls, scenario catalog, and executable graders.
+
+00:03:43.020 --> 00:03:50.723
+Saved JSON and CSV reports retain provenance, resource accounting, source identity, and unknown outcomes.
+
+00:03:50.872 --> 00:03:56.798
+Reviewed source changes have scoped pull requests and passing hosted checks on Ubuntu and Windows.
+
+00:03:56.946 --> 00:04:03.662
+Native Docker evidence is specific to the recorded Windows environment; the Rust launch issue remains open.
+
+00:04:03.810 --> 00:04:10.170
+The supported Python backend is explicit. Neither backend's label alone is a security guarantee.
+
+00:04:10.319 --> 00:04:16.916
+The wider pilot, experiment freeze, repeated formal trials, and comparative analysis remain pending.
+
+00:04:17.759 --> 00:04:24.040
+FollowThrough makes repair claims inspectable by keeping code correctness and completion evidence separate.
+
+00:04:24.188 --> 00:04:31.023
+The software, graders, saved-report interface, and observed development evidence are available in the repository.
+
+00:04:31.171 --> 00:04:38.914
+This walkthrough describes the verified development state, including the incomplete study and its operational limitations.
+
+00:04:39.062 --> 00:04:43.349
+The source is available under the A G P L, version three, licence.

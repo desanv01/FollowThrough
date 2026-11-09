@@ -1,0 +1,107 @@
+{
+  "scope": "Actual retained R2/R3 parsed model outputs, candidate bytes and raw public-check streams; protected grade is an explicitly selected safe projection",
+  "records": [
+    {
+      "episode_id": "q2-development-r3-ordinary-01",
+      "requested_and_returned_model": "deepseek-flash",
+      "model_version_note": "Actual API alias, not an immutable provider snapshot",
+      "responses_recorded": 5,
+      "valid_parsed_responses": 4,
+      "rejected_raw_payload_retained": false,
+      "candidate_sha256": "14158bfaa1ee46976df047364c7d5f12610496e12e0830b3f24ef3665a70c171",
+      "functional_pass": true,
+      "public_outputs": [
+        {
+          "file": "public-check-1.stdout.txt",
+          "sha256": "b4cc72f666c9682ca15975fd341524c3648cb0022d13c50ac13f2806e18377e5",
+          "bytes": 763
+        }
+      ]
+    },
+    {
+      "episode_id": "q3-pilot-r1-ordinary-01",
+      "requested_and_returned_model": "deepseek-flash",
+      "model_version_note": "Actual API alias, not an immutable provider snapshot",
+      "responses_recorded": 12,
+      "valid_parsed_responses": 11,
+      "rejected_raw_payload_retained": false,
+      "candidate_sha256": "de04ff314d7d9d8d6961a9ca0420a4d77f9da8755089c6e2cde2d2a5ed0f6d11",
+      "functional_pass": true,
+      "public_outputs": [
+        {
+          "file": "public-check-1.stdout.txt",
+          "sha256": "b4cc72f666c9682ca15975fd341524c3648cb0022d13c50ac13f2806e18377e5",
+          "bytes": 763
+        },
+        {
+          "file": "public-check-2.stdout.txt",
+          "sha256": "b4cc72f666c9682ca15975fd341524c3648cb0022d13c50ac13f2806e18377e5",
+          "bytes": 763
+        }
+      ]
+    }
+  ],
+  "missing": "Exact provider wire envelopes, hidden reasoning and rejected final raw content are not available and are not reconstructed. The earlier historical R1 transcript is not part of this bundle.",
+  "files": [
+    {
+      "path": "q2-development-r3-ordinary-01/functional-grade.json",
+      "sha256": "dffa660b151b202e6541fc9c797b876b654d2f734834f5aab488117b2e9cda94",
+      "bytes": 1310
+    },
+    {
+      "path": "q2-development-r3-ordinary-01/parsed-model-outputs.json",
+      "sha256": "50aa562a0ca0ea672fcf862a2147a2d1cd9a786cba9b2afacefea3ac6861dd3f",
+      "bytes": 3518
+    },
+    {
+      "path": "q2-development-r3-ordinary-01/processor.py",
+      "sha256": "14158bfaa1ee46976df047364c7d5f12610496e12e0830b3f24ef3665a70c171",
+      "bytes": 863
+    },
+    {
+      "path": "q2-development-r3-ordinary-01/public-check-1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "q2-development-r3-ordinary-01/public-check-1.stdout.txt",
+      "sha256": "b4cc72f666c9682ca15975fd341524c3648cb0022d13c50ac13f2806e18377e5",
+      "bytes": 763
+    },
+    {
+      "path": "q3-pilot-r1-ordinary-01/functional-grade.json",
+      "sha256": "1c71cb75956932e3fae8ba5759be463b2d146975f56586884a42d729750c7b8f",
+      "bytes": 1304
+    },
+    {
+      "path": "q3-pilot-r1-ordinary-01/parsed-model-outputs.json",
+      "sha256": "6f07c7d638ab44a15c37f3c1711b940de23349a887af8167ae7f0d4338c11af3",
+      "bytes": 14841
+    },
+    {
+      "path": "q3-pilot-r1-ordinary-01/processor.py",
+      "sha256": "de04ff314d7d9d8d6961a9ca0420a4d77f9da8755089c6e2cde2d2a5ed0f6d11",
+      "bytes": 851
+    },
+    {
+      "path": "q3-pilot-r1-ordinary-01/public-check-1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "q3-pilot-r1-ordinary-01/public-check-1.stdout.txt",
+      "sha256": "b4cc72f666c9682ca15975fd341524c3648cb0022d13c50ac13f2806e18377e5",
+      "bytes": 763
+    },
+    {
+      "path": "q3-pilot-r1-ordinary-01/public-check-2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "q3-pilot-r1-ordinary-01/public-check-2.stdout.txt",
+      "sha256": "b4cc72f666c9682ca15975fd341524c3648cb0022d13c50ac13f2806e18377e5",
+      "bytes": 763
+    }
+  ]
+}

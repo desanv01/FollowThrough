@@ -1,12 +1,6 @@
 # Reproduce a qualified evaluation
 
-Status, 9 November 2026: runtime/report corrections in PRs 79–83 are merged and passed
-hosted checks. They are source evidence. One earlier paid development attempt is
-retained as an excluded infrastructure error; its separate protected Retry v1
-functional pass is not an overall success. No new paid attempt or formal dataset
-is claimed here. The candidate formal design is six scenarios × two arms × two
-trials (24 episodes, 12 scenario/arm cells); it is reviewed but **not frozen until
-a qualified pilot and remaining-budget review**.
+Status, 9 November 2026: source corrections and hosted checks are delivered. Three actual DeepSeek-backed attempts are retained with independent functional passes and overall infrastructure/provider exclusions. The Python public-check backend has native authored positive/negative control evidence and successful checks within later model episodes; the Rust child-process setup issue remains distinct. See the [dated evidence record](../research/DEVELOPMENT-RUNS-2026-11-09.md) and [retained outputs](../research/recorded-outputs/README.md). The six-scenario/two-arm campaign design is separate from those observed development records.
 
 ## Prepare the trusted host
 
@@ -38,12 +32,7 @@ reviewed source. Retry R1/R2/R3 use v1; Cache C1/C2/C3 use v2. Both arms
 `ordinary` and `structured_progress` and stages `development`, `pilot`, `formal`
 use the same guarded entry. Changing stage does not authorize a formal campaign.
 
-Current native limitation: direct Docker commands work, but the managed Rust child
-has returned a named-pipe access denial before container creation. This is a host
-execution-context difference, not a demonstrated model failure. Qualification in
-the user's ordinary PowerShell host is **pending**. Preflight success does not
-resolve this; perform the separately reviewed bounded native qualification before
-paid dispatch. Do not change daemon permissions or bypass executor restrictions.
+The recorded Windows host has a Rust-child Docker-info pipe-access failure even when direct commands work. It is not a demonstrated model failure. The explicit [Python public-check backend](PYTHON-CHECK.md) has recorded native controls and later real checking evidence; select it only with the reviewed runtime and its required pins. Preflight alone does not establish isolation or grading qualification. No daemon permission changes are needed or authorized by this guide.
 
 ## Prepare portable campaign state without execution
 

@@ -1,6 +1,6 @@
-# Read-only browser report viewer (P4.6 candidate)
+# Read-only browser report viewer
 
-Status: **offline static-viewer candidate pending independent review and Main acceptance.** Implementation: `reporting/viewer.py`; tests: `tests/test_viewer.py`; portable artifact generated from the pinned synthetic report for local inspection only.
+Status, 9 November 2026: source integrated, independently reviewed and hosted. The actual viewer has been rendered from the three retained real-attempt report rows and inspected in an isolated browser. It is read-only saved-result inspection, not a fresh model request. [Try it from a clean source checkout](../release/TESTING.md).
 
 ## Layout decision (P4.6.1)
 
@@ -21,4 +21,4 @@ All supplied strings are HTML-escaped and control characters removed; the artifa
 
 ## Portable artifact (P4.6.4)
 
-`python -B -m reporting.viewer --report report.json [--trajectory trajectory.json] [--events events.json] [--binding binding.json] --output report.html` writes one self-contained HTML file atomically. A focused synthetic artifact and static/visual-equivalent check are produced locally; a real browser pass and acceptance remain Main-owned. Actual qualified records are not yet available in the local campaign, so all current evidence is synthetic/preparation only.
+`python -B -m reporting.viewer --report report.json [--trajectory trajectory.json] [--events events.json] [--binding binding.json] --output report.html` writes one self-contained HTML file atomically. A focused synthetic artifact and static/visual-equivalent check are produced locally; a real browser pass and acceptance remain Main-owned. The included real-attempt report input and separate synthetic fixture retain distinct provenance labels; current captures and results are described in the dated development record.

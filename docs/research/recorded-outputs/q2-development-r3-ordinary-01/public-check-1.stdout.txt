@@ -1,0 +1,7 @@
+{"check": "validation", "detail": "10 malformed items returned invalid without state changes", "passed": true}
+{"check": "new_duplicate_conflict", "detail": "applied, duplicate and conflict kept the original units exactly once", "passed": true}
+{"check": "tenant_identity", "detail": "the same event ID applied independently in two tenants", "passed": true}
+{"check": "batch_order", "detail": "batch preserved order, continued after invalid/conflict, and handled empty input", "passed": true}
+{"check": "rollback_after_add", "detail": "post-credit failure rolled back both effects", "passed": true}
+{"check": "rollback_after_mark", "detail": "post-completion failure rolled back both effects", "passed": true}
+{"passed": 6, "summary": "public smoke", "total": 6}

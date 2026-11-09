@@ -1,0 +1,57 @@
+{
+  "candidate_sha256": "14158bfaa1ee46976df047364c7d5f12610496e12e0830b3f24ef3665a70c171",
+  "checkpoint_id": null,
+  "checks": [
+    {
+      "detail": "expected host state",
+      "id": "new_delivery",
+      "passed": true
+    },
+    {
+      "detail": "expected host state",
+      "id": "second_delivery",
+      "passed": true
+    },
+    {
+      "detail": "expected host state",
+      "id": "duplicate",
+      "passed": true
+    },
+    {
+      "detail": "expected host state",
+      "id": "conflict",
+      "passed": true
+    },
+    {
+      "detail": "expected host state",
+      "id": "malformed",
+      "passed": true
+    },
+    {
+      "detail": "expected host state",
+      "id": "mixed_batch",
+      "passed": true
+    },
+    {
+      "detail": "expected host state",
+      "id": "rollback_after_credit",
+      "passed": true
+    },
+    {
+      "detail": "expected host state",
+      "id": "retry_after_fault",
+      "passed": true
+    }
+  ],
+  "cleanup": "settled",
+  "evidence_kind": "protected_container_grading",
+  "exit_code": null,
+  "functional_pass": true,
+  "grade_kind": "final",
+  "origin": "grader",
+  "requirements_version": "v1",
+  "run_id": "q2-development-r3-ordinary-01:run",
+  "schema_version": "protected-grade-receipt-0.1",
+  "status": "passed",
+  "task_family": "retry-processing"
+}

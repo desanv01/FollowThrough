@@ -85,7 +85,8 @@ class FakeClient:
         self.calls = []
 
     def complete(self, operation_id, messages, *, max_cost_usd, tools,
-                 max_tokens, timeout_seconds, max_response_bytes, dispatch):
+                 max_tokens, timeout_seconds, max_response_bytes, dispatch,
+                 json_output=False):
         self.calls.append({
             "operation_id": operation_id,
             "messages": copy.deepcopy(messages),
@@ -434,8 +435,8 @@ class ProviderBridgeTest(unittest.TestCase):
         state = {"now": 0.0}
         real_serializer = provider_module._request_body
 
-        def crossing_serializer(messages, tools, max_tokens):
-            body = real_serializer(messages, tools, max_tokens)
+        def crossing_serializer(messages, tools, max_tokens, **kwargs):
+            body = real_serializer(messages, tools, max_tokens, **kwargs)
             state["now"] = 1.2
             return body
 

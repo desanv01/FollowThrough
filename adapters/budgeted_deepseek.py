@@ -66,6 +66,7 @@ class BudgetedDeepSeekClient:
         timeout_seconds=15,
         max_response_bytes=131072,
         dispatch=False,
+        json_output=False,
     ):
         """Reserve the full envelope, call the adapter once, record the outcome."""
         if dispatch is not True:
@@ -84,6 +85,7 @@ class BudgetedDeepSeekClient:
                 max_tokens=max_tokens,
                 timeout_seconds=timeout_seconds,
                 max_response_bytes=max_response_bytes,
+                **({"json_output": json_output} if json_output is not False else {}),
             )
         except DeepSeekError as failure:
             failure_outcome = "uncertain" if failure.outcome_unknown else "provider_error"

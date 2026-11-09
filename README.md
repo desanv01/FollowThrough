@@ -42,7 +42,7 @@ cargo build --locked --manifest-path runner/Cargo.toml
 cargo test --locked --manifest-path runner/Cargo.toml
 ~~~
 
-See the [runner guide](runner/README.md), [container executor](docs/project/CONTAINER-EXECUTOR.md), and [live driver](docs/project/LIVE-DRIVER.md) for supported invocation, limits and cleanup behavior. Native evidence is scoped to the recorded Windows/Docker environment.
+See the [runner guide](runner/README.md), [container executor](docs/project/CONTAINER-EXECUTOR.md), and [live driver](docs/project/LIVE-DRIVER.md) for supported invocation, limits and cleanup behavior. Use the [qualified evaluation guide](docs/project/QUALIFIED-EVALUATION.md) for current prerequisites, preflight and guarded dispatch templates. Native evidence is scoped to the recorded Windows/Docker environment.
 
 ## Inspect a saved report
 

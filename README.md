@@ -42,7 +42,7 @@ cargo build --locked --manifest-path runner/Cargo.toml
 cargo test --locked --manifest-path runner/Cargo.toml
 ~~~
 
-See the [runner guide](runner/README.md), [container executor](docs/project/CONTAINER-EXECUTOR.md), and [live driver](docs/project/LIVE-DRIVER.md) for supported invocation, limits and cleanup behavior. Use the [qualified evaluation guide](docs/project/QUALIFIED-EVALUATION.md) for current prerequisites, preflight and guarded dispatch templates. Native evidence is scoped to the recorded Windows/Docker environment.
+See the [runner guide](runner/README.md), [container executor](docs/project/CONTAINER-EXECUTOR.md), and [live driver](docs/project/LIVE-DRIVER.md) for supported invocation, limits and cleanup behavior. Use the [qualified evaluation guide](docs/project/QUALIFIED-EVALUATION.md) for current prerequisites, preflight and guarded dispatch templates. Native evidence is scoped to the recorded Windows/Docker environment. The explicit [Python check backend](docs/project/PYTHON-CHECK.md) has [actual passing and failing authored native controls](docs/research/NATIVE-CONTROLS-2026-11-09.md); the Rust launch failure on this host remains open. The [observed R1 checkpoint assessment](docs/research/OBSERVED-R1-TRAJECTORY.md) is posthoc development evidence, separate from pending pilot/formal results.
 
 ## Inspect a saved report
 

@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://desanv01.github.io/FollowThrough/"><img src="https://img.shields.io/badge/demo-4m45s-087c79" alt="Narrated 4 minute 45 second demo" /></a>
+  <a href="https://youtu.be/rG9CpwTCMkM"><img src="https://img.shields.io/badge/demo-4m45s-087c79" alt="Narrated 4 minute 45 second demo" /></a>
   <img src="https://img.shields.io/badge/model-DeepSeek_Flash-087c79" alt="DeepSeek Flash" />
   <a href="https://github.com/desanv01/FollowThrough/actions/workflows/ci.yml"><img src="https://github.com/desanv01/FollowThrough/actions/workflows/ci.yml/badge.svg?branch=main" alt="Ubuntu and Windows source CI" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-087c79" alt="MIT license" /></a>
@@ -20,14 +20,14 @@
 <p align="center">
   <a href="#features">Features</a> ·
   <a href="#demo">Demo</a> ·
-  <a href="https://desanv01.github.io/FollowThrough/">Watch video</a> ·
+  <a href="https://youtu.be/rG9CpwTCMkM">Watch video</a> ·
   <a href="#get-started">Get started</a> ·
   <a href="#deepseek--bounded-execution">DeepSeek &amp; execution</a> ·
   <a href="#documentation">Documentation</a>
 </p>
 
 <p align="center">
-  <a href="https://desanv01.github.io/FollowThrough/"><img src="docs/assets/demo/terminal.png" alt="Actual FollowThrough T3 terminal renderer showing three recorded attempts and separate functional, workflow, evidence and completion outcomes" width="1000" /></a>
+  <a href="https://youtu.be/rG9CpwTCMkM"><img src="docs/assets/demo/terminal.png" alt="Actual FollowThrough T3 terminal renderer showing three recorded attempts and separate functional, workflow, evidence and completion outcomes" width="1000" /></a>
   <br /><sub>Actual CLI rendering · recorded provider-backed attempts, replayed for inspection.</sub>
 </p>
 
@@ -94,7 +94,7 @@ Generate JSON, CSV and Markdown reports plus a portable read-only browser view. 
 
 ## Demo
 
-**[Watch the narrated 4:45 walkthrough →](https://desanv01.github.io/FollowThrough/)** · [MP4 and captions](https://github.com/desanv01/FollowThrough/releases/tag/walkthrough-2026-11-09)
+**[Watch the narrated 4:45 walkthrough on YouTube →](https://youtu.be/rG9CpwTCMkM)** · [Submitted public-player mirror](https://desanv01.github.io/FollowThrough/) · [MP4 and captions](https://github.com/desanv01/FollowThrough/releases/tag/walkthrough-2026-11-09)
 
 The included saved-report input contains three actual DeepSeek-backed attempts. Opening the viewer makes no fresh model request and runs no candidate code.
 

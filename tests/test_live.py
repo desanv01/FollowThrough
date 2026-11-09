@@ -359,7 +359,7 @@ class LiveCompositionTest(unittest.TestCase):
             "limits": {
                 "max_calls": 16, "max_output_tokens_per_call": 2048,
                 "max_call_seconds": 25, "max_call_reservation_micro_usd": 50000,
-                "max_operation_reservation_micro_usd": 800000,
+                "max_operation_reservation_micro_usd": 600000,
                 "max_wall_seconds": 900,
             },
             "budget": {"campaign_id": "fixture-campaign",
@@ -399,6 +399,19 @@ class LiveCompositionTest(unittest.TestCase):
             ))
         self.assertEqual(code, 2)
         self.assertIn("live refused:", err.getvalue())
+
+    def test_default_operation_reservation_cap_refuses_next_dispatch(self):
+        port = FakePort(reservation_micro=50000)
+        guard = OperationGuard(port, monotonic=lambda: 0.0)
+        for index in range(12):
+            guard(request("bounded:%s" % index))
+        self.assertEqual(guard.reserved_micro_usd, 600000)
+        self.assertEqual(guard.summary()["policy"]["max_operation_cost_usd"], "0.60")
+        with self.assertRaises(LiveGateError) as raised:
+            guard(request("bounded:13"))
+        self.assertEqual(raised.exception.code, "operation_cost_exceeded")
+        self.assertEqual(len(port.requests), 12)
+        self.assertEqual(guard.calls, 12)
 
     def test_operation_guard_call_and_operation_limits(self):
         port = FakePort(reservation_micro=1000)
@@ -1023,7 +1036,7 @@ class LiveCompositionTest(unittest.TestCase):
             "limits": {
                 "max_calls": 16, "max_output_tokens_per_call": 2048,
                 "max_call_seconds": 25, "max_call_reservation_micro_usd": 50000,
-                "max_operation_reservation_micro_usd": 800000,
+                "max_operation_reservation_micro_usd": 600000,
                 "max_wall_seconds": 900,
             },
             "budget": {"campaign_id": "fixture-campaign",

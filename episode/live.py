@@ -6,7 +6,7 @@ This is the P3-owned paid entry. It composes, without reimplementing them:
 - the P3 ``BudgetedModelPort`` JSON-action bridge, frozen dispatch deadline and
   per-call cap;
 - an operation guard for the authorized R1 envelope (16 calls, 2048 output tokens,
-  25 s per call, US$0.05 reserved per call, US$0.80 operation reservation, 900 s
+  25 s per call, US$0.05 reserved per call, US$0.60 operation reservation, 900 s
   wall including cleanup);
 - an injected P2 check port and host grade function, and an injected P4 episode
   runner (default: ``episode.e2e.run_r1_smoke``).
@@ -51,7 +51,7 @@ MAX_CALLS = 16
 MAX_OUTPUT_TOKENS = 2048
 MAX_CALL_SECONDS = 25
 MAX_CALL_COST_USD = Decimal("0.05")
-MAX_OPERATION_COST_USD = Decimal("0.80")
+MAX_OPERATION_COST_USD = Decimal("0.60")
 MAX_WALL_SECONDS = 900.0
 CAP_USD = "20"
 MICRO = Decimal("0.000001")

@@ -19,7 +19,7 @@ source without reimplementing it:
   dispatch deadline;
 - `OperationGuard`, which bounds the authorized R1 operation: 16 model attempts,
   2,048 output tokens per call, 25 seconds per call, US$0.05 local reservation per
-  call, US$0.80 operation reservation and 900 seconds wall including cleanup;
+  call, US$0.60 operation reservation and 900 seconds wall including cleanup;
 - injected P2 `LiveCheckBridge`/qualified session grade and the injected P4
   `episode.e2e.run_r1_smoke` runner, plus P4's merged `run_scenario_smoke` for
   non-R1 scenarios and structured-progress arms;

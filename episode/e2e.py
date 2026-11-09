@@ -265,8 +265,11 @@ def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
         raise E2EError("live_mode_required_for_real_provider")
     run_root = Path(run_root)
     receipts = []
+    checks_attempted = 0
 
     def capture_check(request):
+        nonlocal checks_attempted
+        checks_attempted += 1
         receipt = check_port(request)
         if isinstance(receipt, dict):
             receipts.append(receipt)
@@ -301,7 +304,7 @@ def run_scenario_smoke(run_root, *, episode_id, scenario_id="R1",
     }
     events = _report_events(run_root, receipts, result, live)
     reason = None
-    if not receipts:
+    if len(receipts) != checks_attempted:
         reason = "check_receipt_missing"
     elif any(
         not isinstance(receipt, dict) or receipt.get("cleanup") != "settled"

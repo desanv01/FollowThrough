@@ -387,7 +387,7 @@ def build_attempt_receipt(operation, *, result=None, usage=None,
     ):
         requested = requested_models[0]
     checks = check_receipts if isinstance(check_receipts, list) else []
-    checks_settled = bool(checks) and all(
+    checks_settled = all(
         isinstance(item, dict) and item.get("cleanup") == "settled"
         for item in checks
     )
@@ -956,7 +956,7 @@ def run_live_r1(run_root, *, episode_id, model_port, check_port, grade_fn,
         raise
     usage = guard.summary()
     grade = result.get("grade") if isinstance(result, dict) else None
-    cleanup_settled = bool(check_receipts) and all(
+    cleanup_settled = all(
         isinstance(item, dict) and item.get("cleanup") == "settled"
         for item in check_receipts
     ) and isinstance(grade, dict) and grade.get("cleanup") == "settled"

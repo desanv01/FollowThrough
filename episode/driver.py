@@ -245,6 +245,9 @@ def run_scenario(
             limits=limits,
         )
         config["check_evidence_kind"] = check_evidence_kind
+        # Optional host metadata only; preserve the adapter's default key contract.
+        if evidence_kind != EVIDENCE_KIND:
+            config["episode_evidence_kind"] = evidence_kind
     except Exception as exc:
         code = _bounded_error(exc)
         envelope = execution_envelope("preparation_error", None, package_path, None, code)

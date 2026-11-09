@@ -443,6 +443,8 @@ pub struct CommandObservation {
     pub exit_code: Option<i32>,
     pub stdout_bytes: u64,
     pub stderr_bytes: u64,
+    /// Private receipt diagnostics only; never projected to agent-visible check output.
+    pub stderr_excerpt: String,
     pub timed_out: bool,
     pub output_limit: bool,
     pub cancelled: bool,
@@ -781,6 +783,12 @@ impl<'a> Lifecycle<'a> {
     }
 
     fn record(&mut self, name: &str, request: &CommandRequest, outcome: &CommandOutcome) {
+        let retained = &outcome.stderr.bytes[..outcome.stderr.bytes.len().min(4096)];
+        let mut stderr_excerpt = String::from_utf8_lossy(retained).into_owned();
+        // Lossy UTF-8 replacement may expand bytes; preserve the serialized field bound.
+        while stderr_excerpt.len() > 4096 {
+            stderr_excerpt.pop();
+        }
         self.commands.push(CommandObservation {
             name: name.to_string(),
             argv: request.args.clone(),
@@ -788,6 +796,7 @@ impl<'a> Lifecycle<'a> {
             exit_code: outcome.exit_code,
             stdout_bytes: outcome.stdout.observed_bytes,
             stderr_bytes: outcome.stderr.observed_bytes,
+            stderr_excerpt,
             timed_out: outcome.timed_out,
             output_limit: outcome.output_limit,
             cancelled: outcome.cancelled,

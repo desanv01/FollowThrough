@@ -1,0 +1,53 @@
+{
+  "schema_version": "native-authored-controls-0.1",
+  "stage": "qualification",
+  "evidence_kind": "real_container_check",
+  "scope": "Two authored public-check controls; not model or formal results",
+  "source": {
+    "commit": "f59eccda117c945f697d1dd3c173fc37883ea3a3",
+    "tree": "b4f3ac21b40d2a06af56279f5285c183f90a530f"
+  },
+  "python_check_sha256": "fb6cb264c46270bac1dcffc359122234c97833621074cc1f6ecec20d0b4e507b",
+  "provider_calls": 0,
+  "lease_released": true,
+  "cases": [
+    {
+      "label": "r3-correct",
+      "request_id": "q2-r3-correct-02",
+      "run_id": "live-4e429879bebb76a3c9324276af0991cb",
+      "expected": "passed",
+      "status": "passed",
+      "public_check_exit": 0,
+      "candidate_sha256": "14158bfaa1ee46976df047364c7d5f12610496e12e0830b3f24ef3665a70c171",
+      "binding_verified": true,
+      "pre_witness_verified": true,
+      "post_state_verified": true,
+      "pre_post_isolation_fields_verified": true,
+      "cleanup_settled": true,
+      "absence_verified": true,
+      "private_receipt_sha256": "368d9fd5ce03242fe1f6c8378f96a3679d5999cdaf404da49e7f0278c2a79fa7"
+    },
+    {
+      "label": "r1-incorrect",
+      "request_id": "q2-r1-incorrect-02",
+      "run_id": "live-80341582d736039fa5c67075bc4971df",
+      "expected": "failed",
+      "status": "failed",
+      "public_check_exit": 1,
+      "candidate_sha256": "ab554e6153ab92a2b4fe3ddcfa58436ad373a78ebdff318e33dcd1908235ec87",
+      "binding_verified": true,
+      "pre_witness_verified": true,
+      "post_state_verified": true,
+      "pre_post_isolation_fields_verified": true,
+      "cleanup_settled": true,
+      "absence_verified": true,
+      "private_receipt_sha256": "d4686564e5d7903a58e118303a6e225550c9992f7d7ef0bc4893c898cb72288a"
+    }
+  ],
+  "limitations": [
+    "Explicit Python backend qualification on this Windows/Docker host only.",
+    "Rust-spawned Docker setup failure remains unresolved.",
+    "Public checks are separate from protected functional grading.",
+    "This is not a completed provider episode, pilot or formal study."
+  ]
+}

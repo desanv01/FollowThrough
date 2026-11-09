@@ -83,3 +83,24 @@ The one recorded real DeepSeek development attempt received a passing protected 
 The manual source-package workflow archives only tracked source and emits commit, tree and SHA-256 files. Source artifacts are the delivery target for this CLI repository; no running web service is deployed. Credentials, private coordination, raw runtime traces, budget databases and local Git bundles are excluded.
 
 Video production is held until the owner discusses it after GitHub delivery. Upload and final submission are separate actions.
+
+## 9 November qualification and T3 deliveries
+
+Each scoped unit below passed hosted Ubuntu/Windows CI on its PR head and has a verified merge/tree readback. The real execution and remaining study limits are described in the dated development record.
+
+| PR | Source head | Hosted CI | Merge |
+|---|---|---|---|
+| [#79](https://github.com/desanv01/FollowThrough/pull/79) | `9026f9e5805f` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42545416845) | `89f9b5444042` |
+| [#80](https://github.com/desanv01/FollowThrough/pull/80) | `c36373f91a41` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42545666444) | `1c21e532da21` |
+| [#81](https://github.com/desanv01/FollowThrough/pull/81) | `7a082dfda4d5` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42545922284) | `8fc77f9141a9` |
+| [#82](https://github.com/desanv01/FollowThrough/pull/82) | `73aa9640537a` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42546441907) | `30ac75f48fe1` |
+| [#83](https://github.com/desanv01/FollowThrough/pull/83) | `8fdb226c34e4` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42546994987) | `a42c3d6d52eb` |
+| [#86](https://github.com/desanv01/FollowThrough/pull/86) | `355fa37f18e9` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42548194658) | `f33b2dae943f` |
+| [#87](https://github.com/desanv01/FollowThrough/pull/87) | `b6b21c183185` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42548887259) | `48790313665d` |
+| [#88](https://github.com/desanv01/FollowThrough/pull/88) | `60842774761b` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42550647849) | `113943a7eef9` |
+| [#89](https://github.com/desanv01/FollowThrough/pull/89) | `f59eccda117c` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42551845353) | `a2328e3fb241` |
+| [#90](https://github.com/desanv01/FollowThrough/pull/90) | `3b3d050cfb3a` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42552839415) | `c6a5cfeead9a` |
+| [#91](https://github.com/desanv01/FollowThrough/pull/91) | `d46861d3b5be` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42553604014) | `beed38f2a40d` |
+| [#92](https://github.com/desanv01/FollowThrough/pull/92) | `fd6add748162` | [pass](https://github.com/desanv01/FollowThrough/actions/runs/42556952739) | `29dcef206fa6` |
+
+The earlier one-attempt and video-hold statements above are historical delivery scope. Current retained evidence is three excluded real attempts; evaluations are paused and local video production has been authorized. Public video upload and final submission await owner review. Legacy draft PR #1 remains preserved.

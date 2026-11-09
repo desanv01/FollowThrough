@@ -1,0 +1,420 @@
+{
+  "schema_version": "report-input-0.1",
+  "dataset_id": "followthrough-recorded-real-attempts",
+  "episodes": [
+    {
+      "arm": "ordinary",
+      "episode_id": "r1-followthrough-ordinary-001",
+      "evidence_kind": "real_provider",
+      "outcomes": {
+        "completion": "unknown",
+        "evidence": "unknown",
+        "functional": "pass",
+        "workflow": "unknown"
+      },
+      "resources": {
+        "elapsed_ms": 16516,
+        "estimated_cost_micro_usd": 5052,
+        "input_tokens": 22838,
+        "model_responses": 7,
+        "output_tokens": 1822,
+        "reserved_micro_usd": 85754,
+        "tool_actions": 6
+      },
+      "scenario_id": "R1",
+      "stage": "development",
+      "status": "infrastructure_error",
+      "trace": [
+        {
+          "kind": "supplied_fixture",
+          "role": "controller",
+          "seq": 1,
+          "summary": "episode_start"
+        },
+        {
+          "kind": "check",
+          "role": "W1",
+          "seq": 2,
+          "summary": "check_result status=infrastructure_error"
+        }
+      ],
+      "trial": 1
+    },
+    {
+      "arm": "ordinary",
+      "episode_id": "q2-development-r3-ordinary-01",
+      "evidence_kind": "real_provider",
+      "outcomes": {
+        "completion": "unknown",
+        "evidence": "pass",
+        "functional": "pass",
+        "workflow": "unknown"
+      },
+      "resources": {
+        "elapsed_ms": 40172,
+        "estimated_cost_micro_usd": 6881,
+        "input_tokens": 11031,
+        "model_responses": 5,
+        "output_tokens": 3740,
+        "reserved_micro_usd": 54590,
+        "tool_actions": 4
+      },
+      "scenario_id": "R3",
+      "stage": "development",
+      "status": "provider_error",
+      "trace": [
+        {
+          "kind": "supplied_fixture",
+          "role": "controller",
+          "seq": 1,
+          "summary": "episode_start"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 2,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 3,
+          "summary": "action_attempt action=read"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 4,
+          "summary": "read_result"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 5,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 6,
+          "summary": "action_attempt action=read"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 7,
+          "summary": "read_result"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 8,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 9,
+          "summary": "action_attempt action=check"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 10,
+          "summary": "check_request"
+        },
+        {
+          "kind": "check",
+          "role": "O1",
+          "seq": 11,
+          "summary": "check_result status=passed"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 12,
+          "summary": "check_observation status=passed"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 13,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 14,
+          "summary": "action_attempt action=request_review"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 15,
+          "summary": "review_request"
+        }
+      ],
+      "trial": 1
+    },
+    {
+      "arm": "ordinary",
+      "episode_id": "q3-pilot-r1-ordinary-01",
+      "evidence_kind": "real_provider",
+      "outcomes": {
+        "completion": "unknown",
+        "evidence": "pass",
+        "functional": "pass",
+        "workflow": "unknown"
+      },
+      "resources": {
+        "elapsed_ms": 45891,
+        "estimated_cost_micro_usd": 7948,
+        "input_tokens": 36048,
+        "model_responses": 12,
+        "output_tokens": 3358,
+        "reserved_micro_usd": 149380,
+        "tool_actions": 11
+      },
+      "scenario_id": "R1",
+      "stage": "pilot",
+      "status": "provider_error",
+      "trace": [
+        {
+          "kind": "supplied_fixture",
+          "role": "controller",
+          "seq": 1,
+          "summary": "episode_start"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 2,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 3,
+          "summary": "action_attempt action=read"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 4,
+          "summary": "read_result"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 5,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 6,
+          "summary": "action_attempt action=read"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 7,
+          "summary": "read_result"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 8,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 9,
+          "summary": "action_attempt action=delegate"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 10,
+          "summary": "delegation"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 11,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 12,
+          "summary": "action_attempt action=read"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 13,
+          "summary": "read_result"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 14,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 15,
+          "summary": "action_attempt action=write"
+        },
+        {
+          "kind": "edit",
+          "role": "W1",
+          "seq": 16,
+          "summary": "write_result"
+        },
+        {
+          "kind": "message",
+          "role": "controller",
+          "seq": 17,
+          "summary": "checkpoint"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 18,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 19,
+          "summary": "action_attempt action=check"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 20,
+          "summary": "check_request"
+        },
+        {
+          "kind": "check",
+          "role": "W1",
+          "seq": 21,
+          "summary": "check_result status=passed"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 22,
+          "summary": "check_observation status=passed"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 23,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 24,
+          "summary": "action_attempt action=report"
+        },
+        {
+          "kind": "message",
+          "role": "W1",
+          "seq": 25,
+          "summary": "worker_report"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 26,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 27,
+          "summary": "action_attempt action=read"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 28,
+          "summary": "read_result"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 29,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 30,
+          "summary": "action_attempt action=check"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 31,
+          "summary": "check_request"
+        },
+        {
+          "kind": "check",
+          "role": "O1",
+          "seq": 32,
+          "summary": "check_result status=passed"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 33,
+          "summary": "check_observation status=passed"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 34,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 35,
+          "summary": "action_attempt action=request_review"
+        },
+        {
+          "kind": "message",
+          "role": "O1",
+          "seq": 36,
+          "summary": "review_request"
+        },
+        {
+          "kind": "message",
+          "role": "R1",
+          "seq": 37,
+          "summary": "model_response"
+        },
+        {
+          "kind": "message",
+          "role": "R1",
+          "seq": 38,
+          "summary": "action_attempt action=read"
+        },
+        {
+          "kind": "message",
+          "role": "R1",
+          "seq": 39,
+          "summary": "read_result"
+        }
+      ],
+      "trial": 1
+    }
+  ]
+}

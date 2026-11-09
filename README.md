@@ -6,11 +6,11 @@ The CLI prepares six scenarios across two authored task families, runs an orches
 
 ## Development preview
 
-One real DeepSeek development episode has been recorded. Its protected Retry v1 functional grade passed. A public check failed during Docker setup, and the overall episode was recorded as an infrastructure error and excluded from scoring. Workflow, evidence and completion remained unknown.
+Three real DeepSeek-backed attempts are retained: two development episodes and one incomplete pilot episode. All received passing protected functional grades; the first stopped after a public-check infrastructure error and the later two stopped after invalid provider content. All three are excluded from scoring. No complete pilot, experiment freeze, formal result or arm comparison is claimed. Evaluation work is paused.
 
-The trace also exposed a mismatch between the live check bridge and the episode loop. The released source includes the reviewed correction and infrastructure-classification regression checks. This corrected source has not been demonstrated by a second paid episode. Pilot and formal evaluation results remain pending.
+The explicit Python public-check backend has passed authored native positive and negative controls on the recorded Windows/Docker host. Later model episodes exercised this backend successfully before their provider/protocol stops. The Rust child-process Docker setup problem remains unresolved. Authored controls, actual model episodes and posthoc checkpoint assessments are labeled separately.
 
-See [development status](docs/release/DEVELOPMENT-STATUS.md) for measured scope, limitations and resource accounting. Native authored Retry, Cache v2 and Cache v1 checkpoint controls and both direct grader self-tests have recorded expected outcomes. Authored controls establish checker behavior and are labeled separately from model episodes.
+See [development status](docs/release/DEVELOPMENT-STATUS.md) and the [three-attempt record](docs/research/DEVELOPMENT-RUNS-2026-11-09.md) for scope, unknowns and accounting. The terminal ledger now implements the selected dark/cyan T3 layout in the actual CLI.
 
 ## Tasks and evidence
 
@@ -46,7 +46,15 @@ See the [runner guide](runner/README.md), [container executor](docs/project/CONT
 
 ## Inspect a saved report
 
-The included report fixture contains synthetic development records.
+Start with the three retained real attempts. This read-only command needs Python 3.11+ and a supported interactive terminal; it makes no API or Docker calls:
+
+~~~sh
+python -B -m reporting.run_ledger --input docs/research/recorded-development-input.json --format tui
+~~~
+
+Use `j/k` or arrows to select, `Enter` to inspect evidence, `/` to filter, and `q` to close. Use `--format text` when an interactive terminal is unavailable. The saved trace is a bounded sanitized event projection, not the complete private transcript. These excluded attempts are development evidence, not benchmark scores.
+
+The separate report fixture below contains synthetic development records.
 
 ~~~sh
 python -B -m reporting.report --input tests/fixtures/reporting/v0.1/input.json --output-dir runs/report-example

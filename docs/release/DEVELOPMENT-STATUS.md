@@ -2,7 +2,15 @@
 
 The preview contains authored tasks, independent functional graders, scenario preparation, the bounded role loop and provider bridge, native protected runtime source, resource accounting, reporting, a terminal ledger and a read-only browser report.
 
-## Recorded evidence
+## Current closeout — evaluation paused
+
+Three real attempts are now retained: two development episodes and one incomplete pilot episode. Protected functional grading passed in all three; all remain excluded because of infrastructure or provider/protocol stops. No completed pilot, freeze or formal comparison exists. The [dated attempt record](../research/DEVELOPMENT-RUNS-2026-11-09.md) and included sanitized report input describe the actual scope and resource limitations.
+
+The explicit Python public-check backend has recorded native positive/negative authored controls and successful checks within the later model attempts. The Rust child-process Docker setup issue remains open. Two actual historical R1 states were independently assessed posthoc (6/8 to 8/8); this is development evidence. The selected dark/cyan T3 interface is implemented in the actual terminal ledger, with text/JSON fallbacks unchanged.
+
+The sections below preserve the first episode's historical evidence and original reconciliation items. References there to no second paid episode describe that historical delivery; they are superseded by the dated three-attempt record above. The owner's evaluation pause is in effect. Video production and release preparation do not authorize additional evaluations.
+
+## Recorded evidence — historical first episode
 
 The original local source identity for the real development episode was 40f3d4041f4ea2c7f5bccb46806459e86ac6b010. Later local integration 5070bb4bc610b78d07e4c7011354e4640631bb80 incorporates the reviewed live-check provenance and classification correction. Local source identities and hosted replay commits are recorded separately by the delivery process.
 

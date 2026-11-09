@@ -1,0 +1,54 @@
+name: Publish approved walkthrough page
+
+"on":
+  push:
+    branches: [main]
+    paths:
+      - "docs/walkthrough/**"
+      - ".github/workflows/walkthrough-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: walkthrough-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out approved source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Configure Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - name: Stage only the approved public media and player
+        shell: bash
+        run: |
+          set -euo pipefail
+          site="$RUNNER_TEMP/followthrough-walkthrough"
+          mkdir -p "$site"
+          cp docs/walkthrough/index.html docs/walkthrough/captions.vtt "$site/"
+          curl --fail --location --proto '=https' --tlsv1.2 --max-time 120 --max-filesize 25000000 \
+            --output "$site/FollowThrough-Walkthrough.mp4" \
+            'https://github.com/desanv01/FollowThrough/releases/download/walkthrough-2026-11-09/FollowThrough-Walkthrough.mp4'
+          printf '%s  %s\n' '479cb2f777eb79b13ca0e81b4c5788b78d0264ab31f15635b7f5a22eb5352e66' "$site/FollowThrough-Walkthrough.mp4" | sha256sum --check --status
+      - name: Upload the approved player, captions and verified video
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: ${{ runner.temp }}/followthrough-walkthrough
+      - name: Deploy public watch page
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

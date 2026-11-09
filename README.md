@@ -4,6 +4,10 @@ FollowThrough evaluates whether a coding agent team completes a repair, follows 
 
 The CLI prepares six scenarios across two authored task families, runs an orchestrator/worker/reviewer loop, records check receipts and source identities, and renders saved results in a terminal ledger or a portable read-only report. Ordinary and structured-progress workflows use the same task requirements.
 
+## Video walkthrough
+
+[Watch the narrated walkthrough — 4m45s](https://desanv01.github.io/FollowThrough/). The public player includes English captions and needs no sign-in. It shows the actual terminal/report interfaces and retained development evidence, including the incomplete study and operational limitations. [Direct MP4 and caption downloads](https://github.com/desanv01/FollowThrough/releases/tag/walkthrough-2026-11-09) are also available.
+
 ## Development preview
 
 Three real DeepSeek-backed attempts are retained: two development episodes and one incomplete pilot episode. All received passing protected functional grades; the first stopped after a public-check infrastructure error and the later two stopped after invalid provider content. All three are excluded from scoring. No complete pilot, experiment freeze, formal result or arm comparison is claimed. Evaluation work is paused.
